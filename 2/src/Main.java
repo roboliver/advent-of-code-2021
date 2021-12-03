@@ -7,60 +7,60 @@ public class Main {
     private static final String INPUT = "input.txt";
 
     public static void main(String[] args) throws IOException {
-        try (BufferedReader lines = lines()) {
-            System.out.println("Distance: " + distance(lines));
+        try (BufferedReader lineReader = lineReader()) {
+            System.out.println("Distance: " + distance(lineReader));
         }
-        try (BufferedReader lines = lines()) {
-            System.out.println("Distance (actual): " + distanceActual(lines));
+        try (BufferedReader lineReader = lineReader()) {
+            System.out.println("Distance (actual): " + distanceActual(lineReader));
         }
     }
 
-    private static BufferedReader lines() throws FileNotFoundException {
+    private static BufferedReader lineReader() throws FileNotFoundException {
         return new BufferedReader(new FileReader(INPUT));
     }
 
-    private static int distance(BufferedReader lines) throws IOException {
+    public static int distance(BufferedReader lineReader) throws IOException {
         int horizontal = 0;
         int depth = 0;
         String line;
-        while ((line = lines.readLine()) != null) {
-            String[] split = line.split(" ");
-            String lineDir = split[0];
-            int lineDist = Integer.valueOf(split[1]);
-            switch (lineDir) {
+        while ((line = lineReader.readLine()) != null) {
+            String[] lineParts = line.split(" ");
+            String dir = lineParts[0];
+            int dist = Integer.valueOf(lineParts[1]);
+            switch (dir) {
                 case "forward":
-                    horizontal += lineDist;
+                    horizontal += dist;
                     break;
                 case "down":
-                    depth += lineDist;
+                    depth += dist;
                     break;
                 case "up":
-                    depth -= lineDist;
+                    depth -= dist;
                     break;
             }
         }
         return horizontal * depth;
     }
 
-    private static int distanceActual(BufferedReader lines) throws IOException {
+    public static int distanceActual(BufferedReader lineReader) throws IOException {
         int horizontal = 0;
         int depth = 0;
         int aim = 0;
         String line;
-        while ((line = lines.readLine()) != null) {
-            String[] split = line.split(" ");
-            String lineDir = split[0];
-            int lineDist = Integer.valueOf(split[1]);
-            switch (lineDir) {
+        while ((line = lineReader.readLine()) != null) {
+            String[] lineParts = line.split(" ");
+            String dir = lineParts[0];
+            int dist = Integer.valueOf(lineParts[1]);
+            switch (dir) {
                 case "forward":
-                    horizontal += lineDist;
-                    depth += aim * lineDist;
+                    horizontal += dist;
+                    depth += aim * dist;
                     break;
                 case "down":
-                    aim += lineDist;
+                    aim += dist;
                     break;
                 case "up":
-                    aim -= lineDist;
+                    aim -= dist;
                     break;
             }
         }
