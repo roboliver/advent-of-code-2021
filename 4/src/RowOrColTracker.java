@@ -1,5 +1,6 @@
 /**
  * Tracks how many squares on a row or column remain unmarked.
+ * test commit
  */
 public class RowOrColTracker {
     private int count;
