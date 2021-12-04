@@ -83,8 +83,8 @@ public class Main {
                     break;
             }
         }
-        // get the right subset and recurse if we haven't got it down to a single remaining line, else return that line
-        // as an int
+        // get the correct subset and recurse if we haven't got it down to a single remaining line, else return that
+        // line as an int
         List<String> chosenLines;
         if (oxygenNotCo2) {
             chosenLines = oneLines.size() >= zeroLines.size() ? oneLines : zeroLines;
