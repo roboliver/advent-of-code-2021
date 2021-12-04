@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -22,7 +21,7 @@ public class Main {
     public static int powerConsumption(BufferedReader lineReader) throws IOException {
         // build up an array where each position represents a digit, and the value at each position represents the
         // number of 1s at that position minus the number of 0s - so a positive value means more 1s than 0s, a negative
-        // number means more 0s than 1s
+        // value means more 0s than 1s
         String line = lineReader.readLine();
         int[] digitOnesMinusZeros = new int[line.length()];
         while (line != null) {
@@ -39,12 +38,12 @@ public class Main {
             }
             line = lineReader.readLine();
         }
-        int gamma = rateCalc(digitOnesMinusZeros, true);
-        int epsilon = rateCalc(digitOnesMinusZeros, false);
+        int gamma = calcPowerComponentRate(digitOnesMinusZeros, true);
+        int epsilon = calcPowerComponentRate(digitOnesMinusZeros, false);
         return gamma * epsilon;
     }
 
-    private static int rateCalc(int[] digitOnesMinusZeros, boolean gammaNotEpsilon) {
+    private static int calcPowerComponentRate(int[] digitOnesMinusZeros, boolean gammaNotEpsilon) {
         int rate = 0;
         for (int i = 0; i < digitOnesMinusZeros.length; i++) {
             boolean moreOnesThanZeros = digitOnesMinusZeros[i] > 0;
@@ -61,12 +60,12 @@ public class Main {
         while ((line = lineReader.readLine()) != null) {
             lines.add(line);
         }
-        int oxygenRating = ratingCalc(lines, 0, true);
-        int co2ScrubberRating = ratingCalc(lines, 0, false);
-        return oxygenRating * co2ScrubberRating;
+        int oxygenGenRating = calcGasMachineRating(lines, 0, true);
+        int co2ScrubberRating = calcGasMachineRating(lines, 0, false);
+        return oxygenGenRating * co2ScrubberRating;
     }
 
-    private static int ratingCalc(List<String> lines, int digit, boolean oxygenNotCo2) throws IOException {
+    private static int calcGasMachineRating(List<String> lines, int digit, boolean oxygenNotCo2) throws IOException {
         // separate lines based on which value they have at the applicable digit (indexed from the left, starting at 0)
         List<String> zeroLines = new ArrayList<>();
         List<String> oneLines = new ArrayList<>();
@@ -92,7 +91,7 @@ public class Main {
         if (chosenLines.size() == 1) {
             return Integer.valueOf(chosenLines.get(0), 2);
         } else {
-            return ratingCalc(chosenLines, digit + 1, oxygenNotCo2);
+            return calcGasMachineRating(chosenLines, digit + 1, oxygenNotCo2);
         }
     }
 }
