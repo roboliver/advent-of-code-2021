@@ -64,7 +64,7 @@ public class BingoBoard {
 
     /**
      * Returns the score for this board. Note this can only be called once the board reaches bingo.
-     * @return The board's score
+     * @return The board's score, which is the sum of the unmarked numbers times the last marked number
      */
     public int getScore() {
         if (!gotBingo) {
