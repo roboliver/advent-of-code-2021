@@ -11,14 +11,10 @@ public class RowOrColTrackerTest {
     public void testConstructor() {
         // positive ints
         IntStream validCounts = new Random().ints(1000, 1, Integer.MAX_VALUE);
-        validCounts.forEach(count -> {
-            new RowOrColTracker(count);
-        });
+        validCounts.forEach(RowOrColTracker::new);
         // negative ints
         IntStream invalidCounts = new Random().ints(1000, Integer.MIN_VALUE, 0);
-        invalidCounts.forEach(count -> {
-            assertThrows(Exception.class, () -> new RowOrColTracker(count));
-        });
+        invalidCounts.forEach(count -> assertThrows(Exception.class, () -> new RowOrColTracker(count)));
         // boundaries: zero and one
         assertThrows(Exception.class, () -> new RowOrColTracker(0));
         new RowOrColTracker(1);

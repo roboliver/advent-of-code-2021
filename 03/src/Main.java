@@ -68,7 +68,7 @@ public class Main {
         return oxygenGenRating * co2ScrubberRating;
     }
 
-    private static int calcGasMachineRating(List<String> lines, boolean oxygenNotCo2) throws IOException {
+    private static int calcGasMachineRating(List<String> lines, boolean oxygenNotCo2) {
         int i = 0;
         while (lines.size() > 1) {
             // separate lines based on their value of the applicable digit

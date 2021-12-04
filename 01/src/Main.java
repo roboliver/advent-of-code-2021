@@ -24,7 +24,7 @@ public class Main {
         int prevMeasurement = Integer.MAX_VALUE;
         String line;
         while ((line = lineReader.readLine()) != null) {
-            int measurement = Integer.valueOf(line);
+            int measurement = Integer.parseInt(line);
             if (measurement > prevMeasurement) {
                 count++;
             }
@@ -44,7 +44,7 @@ public class Main {
             int prevWindow = isFullWindow ? first + second + third : -1;
             first = second;
             second = third;
-            third = Integer.valueOf(line);
+            third = Integer.parseInt(line);
             isFullWindow = first != -1 && second != -1 && third != -1;
             if (isFullWindow && prevWindow != -1) {
                 int curWindow = first + second + third;

@@ -42,7 +42,7 @@ public class BingoBoard {
 
     /**
      * Marks the number on the board. Call {@code gotBingo} afterwards to see if this resulted in a bingo.
-     * @param number
+     * @param number The number to mark
      */
     public void mark(int number) {
         if (gotBingo) {
@@ -73,7 +73,7 @@ public class BingoBoard {
         int sum = squares.values()
                 .stream()
                 .filter(square -> !square.isMarked())
-                .map(square -> square.number())
+                .map(BingoSquare::number)
                 .reduce(0, Integer::sum);
         return sum * lastMarked;
     }

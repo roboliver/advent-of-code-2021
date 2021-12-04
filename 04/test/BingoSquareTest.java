@@ -8,7 +8,7 @@ public class BingoSquareTest {
     public void testConstructor() {
         RowOrColTracker rowTracker = new RowOrColTracker(5);
         RowOrColTracker colTracker = new RowOrColTracker((9));
-        BingoSquare square = new BingoSquare(1325, rowTracker, colTracker);
+        new BingoSquare(1325, rowTracker, colTracker);
         assertThrows(Exception.class, () -> new BingoSquare(3523, null, colTracker));
         assertThrows(Exception.class, () -> new BingoSquare(523890, rowTracker, null));
     }

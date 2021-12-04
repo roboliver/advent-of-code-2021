@@ -26,7 +26,7 @@ public class Main {
         while ((line = lineReader.readLine()) != null) {
             String[] lineParts = line.split(" ");
             String dir = lineParts[0];
-            int dist = Integer.valueOf(lineParts[1]);
+            int dist = Integer.parseInt(lineParts[1]);
             switch (dir) {
                 case "forward":
                     horizontal += dist;
@@ -50,7 +50,7 @@ public class Main {
         while ((line = lineReader.readLine()) != null) {
             String[] lineParts = line.split(" ");
             String dir = lineParts[0];
-            int dist = Integer.valueOf(lineParts[1]);
+            int dist = Integer.parseInt(lineParts[1]);
             switch (dir) {
                 case "forward":
                     horizontal += dist;
