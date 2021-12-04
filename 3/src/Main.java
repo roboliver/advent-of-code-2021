@@ -69,32 +69,29 @@ public class Main {
     }
 
     private static int calcGasMachineRating(List<String> lines, int digit, boolean oxygenNotCo2) throws IOException {
-        // separate lines based on which value they have at the applicable digit (indexed from the left, starting at 0)
-        List<String> zeroLines = new ArrayList<>();
-        List<String> oneLines = new ArrayList<>();
-        for (String line : lines) {
-            char bit = line.charAt(digit);
-            switch (bit) {
-                case '0':
-                    zeroLines.add(line);
-                    break;
-                case '1':
-                    oneLines.add(line);
-                    break;
+        while (lines.size() > 1) {
+            // separate lines based on their value of the applicable digit (indexed from the left, starting at 0)
+            List<String> zeroLines = new ArrayList<>();
+            List<String> oneLines = new ArrayList<>();
+            for (String line : lines) {
+                char bit = line.charAt(digit);
+                switch (bit) {
+                    case '0':
+                        zeroLines.add(line);
+                        break;
+                    case '1':
+                        oneLines.add(line);
+                        break;
+                }
             }
+            // update the lines to evaluate to the correct subset to use in the next iteration
+            if (oxygenNotCo2) {
+                lines = oneLines.size() >= zeroLines.size() ? oneLines : zeroLines;
+            } else {
+                lines = oneLines.size() >= zeroLines.size() ? zeroLines : oneLines;
+            }
+            digit++;
         }
-        // get the correct subset and recurse if we haven't got it down to a single remaining line, else return that
-        // line as an int
-        List<String> chosenLines;
-        if (oxygenNotCo2) {
-            chosenLines = oneLines.size() >= zeroLines.size() ? oneLines : zeroLines;
-        } else {
-            chosenLines = oneLines.size() >= zeroLines.size() ? zeroLines : oneLines;
-        }
-        if (chosenLines.size() == 1) {
-            return Integer.valueOf(chosenLines.get(0), 2);
-        } else {
-            return calcGasMachineRating(chosenLines, digit + 1, oxygenNotCo2);
-        }
+        return Integer.valueOf(lines.get(0), 2);
     }
 }
