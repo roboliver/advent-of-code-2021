@@ -50,9 +50,9 @@ public class Main {
         int rate = 0;
         for (int i = 0; i < digitOnesMinusZeros.length; i++) {
             boolean moreOnesThanZeros = digitOnesMinusZeros[i] > 0;
-            boolean addOne = moreOnesThanZeros && gammaNotEpsilon || !moreOnesThanZeros && !gammaNotEpsilon;
+            boolean appendOne = moreOnesThanZeros && gammaNotEpsilon || !moreOnesThanZeros && !gammaNotEpsilon;
             rate *= 2;
-            rate += addOne ? 1 : 0;
+            rate += appendOne ? 1 : 0;
         }
         return rate;
     }
