@@ -63,18 +63,19 @@ public class Main {
         while ((line = lineReader.readLine()) != null) {
             lines.add(line);
         }
-        int oxygenGenRating = calcGasMachineRating(lines, 0, true);
-        int co2ScrubberRating = calcGasMachineRating(lines, 0, false);
+        int oxygenGenRating = calcGasMachineRating(lines, true);
+        int co2ScrubberRating = calcGasMachineRating(lines, false);
         return oxygenGenRating * co2ScrubberRating;
     }
 
-    private static int calcGasMachineRating(List<String> lines, int digit, boolean oxygenNotCo2) throws IOException {
+    private static int calcGasMachineRating(List<String> lines, boolean oxygenNotCo2) throws IOException {
+        int i = 0;
         while (lines.size() > 1) {
-            // separate lines based on their value of the applicable digit (indexed from the left, starting at 0)
+            // separate lines based on their value of the applicable digit
             List<String> zeroLines = new ArrayList<>();
             List<String> oneLines = new ArrayList<>();
             for (String line : lines) {
-                char bit = line.charAt(digit);
+                char bit = line.charAt(i);
                 switch (bit) {
                     case '0':
                         zeroLines.add(line);
@@ -90,7 +91,7 @@ public class Main {
             } else {
                 lines = oneLines.size() >= zeroLines.size() ? zeroLines : oneLines;
             }
-            digit++;
+            i++;
         }
         return Integer.valueOf(lines.get(0), 2);
     }
