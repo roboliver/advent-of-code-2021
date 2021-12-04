@@ -7,7 +7,7 @@ import java.util.*;
 public class BingoBoard {
     private final Map<Integer, BingoSquare> squares;
     private boolean gotBingo = false;
-    private int lastDrawn;
+    private int lastMarked;
 
     public BingoBoard(List<List<Integer>> board) {
         Map<Integer, BingoSquare> squaresMut = new HashMap<>();
@@ -53,7 +53,7 @@ public class BingoBoard {
             boolean bingo = square.mark();
             if (bingo) {
                 gotBingo = true;
-                lastDrawn = number;
+                lastMarked = number;
             }
         }
     }
@@ -75,6 +75,6 @@ public class BingoBoard {
                 .filter(square -> !square.isMarked())
                 .map(square -> square.number())
                 .reduce(0, Integer::sum);
-        return sum * lastDrawn;
+        return sum * lastMarked;
     }
 }
