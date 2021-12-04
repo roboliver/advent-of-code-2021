@@ -7,6 +7,7 @@ import java.util.List;
 
 public class Main {
     private static final String INPUT = "input.txt";
+    // test
 
     public static void main(String[] args) throws IOException {
         try (BufferedReader lineReader = inputLineReader()) {
