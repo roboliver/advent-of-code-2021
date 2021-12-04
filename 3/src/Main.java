@@ -23,7 +23,7 @@ public class Main {
 
     public static int powerConsumption(BufferedReader lineReader) throws IOException {
         // build up an array where each position represents a digit, and the value at each position represents the
-        // number of 1s at that position minus the number of 0s - so a positive value means more 1s than 0s, a negative
+        // number of 1s at that position minus the number of 0s -- so a positive value means more 1s than 0s, a negative
         // value means more 0s than 1s
         String line = lineReader.readLine();
         int[] digitOnesMinusZeros = new int[line.length()];
