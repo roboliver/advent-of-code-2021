@@ -1,5 +1,5 @@
 /**
- * Tracks how many squares on a row or column have been marked so far.
+ * Tracks how many squares on a row or column remain unmarked.
  */
 public class RowOrColTracker {
     private int count;
