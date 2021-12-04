@@ -36,4 +36,9 @@ public class MainTest {
     public void testWinningBingoScore() throws IOException {
         assertEquals(4512, Main.winningBingoScore(sampleLineReader()));
     }
+
+    @Test
+    public void testLastWinningBingoScore() throws IOException {
+        assertEquals(1924, Main.lastWinningBingoScore(sampleLineReader()));
+    }
 }

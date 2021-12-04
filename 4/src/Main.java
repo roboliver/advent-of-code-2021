@@ -11,6 +11,9 @@ public class Main {
         try (BufferedReader lineReader = inputLineReader()) {
             System.out.println("Winning bingo score: " + winningBingoScore(lineReader));
         }
+        try (BufferedReader lineReader = inputLineReader()) {
+            System.out.println("Last winning bingo score: " + lastWinningBingoScore(lineReader));
+        }
     }
 
     private static BufferedReader inputLineReader() throws FileNotFoundException {
@@ -29,6 +32,25 @@ public class Main {
             }
         }
         throw new IllegalStateException("no winners!");
+    }
+
+    public static int lastWinningBingoScore(BufferedReader lineReader) throws IOException {
+        List<Integer> drawOrder = drawOrder(lineReader);
+        Collection<BingoBoard> boards = bingoBoards(lineReader);
+        for (int number : drawOrder) {
+            Iterator<BingoBoard> boardIterator = boards.iterator();
+            while (boardIterator.hasNext()) {
+                BingoBoard board = boardIterator.next();
+                board.mark(number);
+                if (board.gotBingo()) {
+                    if (boards.size() == 1) {
+                        return board.getScore(number);
+                    }
+                    boardIterator.remove();
+                }
+            }
+        }
+        throw new IllegalStateException("not everyone's a winner!");
     }
 
     private static List<Integer> drawOrder(BufferedReader lineReader) throws IOException {
