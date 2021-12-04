@@ -7,6 +7,7 @@ import java.util.*;
 public class BingoBoard {
     private final Map<Integer, BingoSquare> squares;
     private boolean gotBingo = false;
+    private int lastDrawn;
 
     public BingoBoard(List<List<Integer>> board) {
         Map<Integer, BingoSquare> squaresMut = new HashMap<>();
@@ -17,8 +18,14 @@ public class BingoBoard {
         List<RowOrColTracker> colTrackers = rowsOrColsGen(colCount, rowCount);
         for (int i = 0; i < board.size(); i++) {
             List<Integer> row = board.get(i);
+            if (row.size() != colCount) {
+                throw new IllegalArgumentException("all rows must be the same length");
+            }
             for (int j = 0; j < row.size(); j++) {
                 int number = row.get(j);
+                if (squaresMut.containsKey(number)) {
+                    throw new IllegalArgumentException("input must not contain duplicates");
+                }
                 squaresMut.put(number, new BingoSquare(number, rowTrackers.get(i), colTrackers.get(j)));
             }
         }
@@ -33,12 +40,20 @@ public class BingoBoard {
         return rowsOrCols;
     }
 
+    /**
+     * Marks the number on the board. Call {@code gotBingo} afterwards to see if this resulted in a bingo.
+     * @param number
+     */
     public void mark(int number) {
+        if (gotBingo) {
+            throw new IllegalStateException("already got bingo");
+        }
         BingoSquare square = squares.get(number);
         if (square != null) {
             boolean bingo = square.mark();
             if (bingo) {
                 gotBingo = true;
+                lastDrawn = number;
             }
         }
     }
@@ -47,7 +62,14 @@ public class BingoBoard {
         return gotBingo;
     }
 
-    public int getScore(int lastDrawn) {
+    /**
+     * Returns the score for this board. Note this can only be called once the board reaches bingo.
+     * @return The board's score
+     */
+    public int getScore() {
+        if (!gotBingo) {
+            throw new IllegalStateException("can't calculate the score until the board reaches bingo");
+        }
         int sum = squares.values()
                 .stream()
                 .filter(square -> !square.isMarked())

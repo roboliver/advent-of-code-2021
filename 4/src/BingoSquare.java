@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 /**
     Represents a square within a bingo board, along with the row and column it's in. This is enough info to be able to
     track when marking the square results in a bingo.
@@ -10,13 +12,12 @@ public class BingoSquare {
 
     public BingoSquare(int number, RowOrColTracker rowTracker, RowOrColTracker colTracker) {
         this.number = number;
-        this.rowTracker = rowTracker;
-        this.colTracker = colTracker;
+        this.rowTracker = Objects.requireNonNull(rowTracker);
+        this.colTracker = Objects.requireNonNull(colTracker);
     }
 
     /**
      * Marks the square - call when its number is drawn.
-     *
      * @return True if marking this square resulted in a bingo, false otherwise.
      */
     public boolean mark() {

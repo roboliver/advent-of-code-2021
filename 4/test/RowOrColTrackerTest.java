@@ -19,8 +19,9 @@ public class RowOrColTrackerTest {
         invalidCounts.forEach(count -> {
             assertThrows(Exception.class, () -> new RowOrColTracker(count));
         });
-        // zero
+        // boundaries: zero and one
         assertThrows(Exception.class, () -> new RowOrColTracker(0));
+        new RowOrColTracker(1);
     }
 
     @Test

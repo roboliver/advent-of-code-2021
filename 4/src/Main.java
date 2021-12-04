@@ -27,7 +27,7 @@ public class Main {
             for (BingoBoard board : boards) {
                 board.mark(number);
                 if (board.gotBingo()) {
-                    return board.getScore(number);
+                    return board.getScore();
                 }
             }
         }
@@ -44,7 +44,7 @@ public class Main {
                 board.mark(number);
                 if (board.gotBingo()) {
                     if (boards.size() == 1) {
-                        return board.getScore(number);
+                        return board.getScore();
                     }
                     boardIterator.remove();
                 }
