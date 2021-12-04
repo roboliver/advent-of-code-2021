@@ -68,9 +68,9 @@ public class BingoBoardTest {
                 {7, 8}
         };
         BingoBoard board = new BingoBoard(inputGen(inputArrays));
-        assertThrows(Exception.class, () -> board.getScore());
+        assertThrows(Exception.class, board::getScore);
         board.mark(3);
-        assertThrows(Exception.class, () -> board.getScore());
+        assertThrows(Exception.class, board::getScore);
         board.mark(7);
         assertEquals(119, board.getScore());
     }
