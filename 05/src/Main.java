@@ -12,8 +12,8 @@ public class Main {
     // indexes into the array we use to save the minimum and maximum x and y values found when reading the lines, to use
     // to construct the seafloor to the appropriate size
     private static final int SEAFLOOR_XMIN = 0;
-    private static final int SEAFLOOR_YMIN = 1;
-    private static final int SEAFLOOR_XMAX = 2;
+    private static final int SEAFLOOR_XMAX = 1;
+    private static final int SEAFLOOR_YMIN = 2;
     private static final int SEAFLOOR_YMAX = 3;
 
     public static void main(String[] args) throws IOException {
@@ -51,8 +51,8 @@ public class Main {
             if (includeDiagonals || start.x() == end.x() || start.y() == end.y()) {
                 vents.add(new Vent(start, end));
                 seafloorSize[SEAFLOOR_XMIN] = newMin(seafloorSize[SEAFLOOR_XMIN], start.x(), end.x());
-                seafloorSize[SEAFLOOR_YMIN] = newMin(seafloorSize[SEAFLOOR_YMIN], start.y(), end.y());
                 seafloorSize[SEAFLOOR_XMAX] = newMax(seafloorSize[SEAFLOOR_XMAX], start.x(), end.x());
+                seafloorSize[SEAFLOOR_YMIN] = newMin(seafloorSize[SEAFLOOR_YMIN], start.y(), end.y());
                 seafloorSize[SEAFLOOR_YMAX] = newMax(seafloorSize[SEAFLOOR_YMAX], start.y(), end.y());
             }
         }
