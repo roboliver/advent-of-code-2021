@@ -6,7 +6,6 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.*;
 
 public class RowOrColTrackerTest {
-
     @Test
     public void testConstructor() {
         // positive ints

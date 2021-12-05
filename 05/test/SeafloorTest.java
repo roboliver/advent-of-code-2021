@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class SeafloorTest {
-
     @Test
     public void testAddVent() {
         Seafloor seafloor = new Seafloor();

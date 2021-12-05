@@ -5,7 +5,6 @@ import java.util.Set;
 import static org.junit.Assert.*;
 
 public class VentTest {
-
     @Test
     public void testConstructor() {
         // horizontal, L->R and R->L

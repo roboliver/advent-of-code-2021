@@ -6,7 +6,6 @@ import java.util.Set;
  * Represents the seafloor. Add vents to it with {@code addVent} and then check the overlaps.
  */
 public class Seafloor {
-
     private final Map<Point, Integer> points = new HashMap<>();
     private int ventOverlaps = 0;
 

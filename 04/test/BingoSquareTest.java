@@ -3,7 +3,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class BingoSquareTest {
-
     @Test
     public void testConstructor() {
         RowOrColTracker rowTracker = new RowOrColTracker(5);
