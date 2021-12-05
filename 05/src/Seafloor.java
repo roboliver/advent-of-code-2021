@@ -1,3 +1,5 @@
+import java.util.Set;
+
 /**
  * Represents the seafloor. Add vents to it with {@code addVent} and then check the overlaps.
  */
@@ -24,7 +26,7 @@ public class Seafloor {
     }
 
     public void addVent(Vent vent) {
-        Point[] ventPoints = vent.points();
+        Set<Point> ventPoints = vent.points();
         for (Point point : ventPoints) {
             int xForGrid = point.x() - xOffset;
             int yForGrid = point.y() - yOffset;

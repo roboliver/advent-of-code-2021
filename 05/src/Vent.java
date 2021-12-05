@@ -1,4 +1,6 @@
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Represents a vent, with start and end coordinates. Vents must be either horizontal, vertical, or diagonal, but it
@@ -24,23 +26,21 @@ public class Vent {
         return Math.abs(end.y() - start.y());
     }
 
-    public Point[] points() {
-        Point[] points = new Point[Math.max(xLen(), yLen()) + 1];
+    public Set<Point> points() {
+        Set<Point> points = new HashSet<>();
         int xCur = start.x();
         int yCur = start.y();
-        int i = 0;
         while (xCur != end.x() || yCur != end.y()) {
-            points[i] = new Point(xCur, yCur);
+            points.add(new Point(xCur, yCur));
             if (xCur != end.x()) {
                 xCur += start.x() < end.x() ? 1 : -1;
             }
             if (yCur != end.y()) {
                 yCur += start.y() < end.y() ? 1 : -1;
             }
-            i++;
         }
         // add the final point
-        points[i] = new Point(xCur, yCur);
+        points.add(new Point(xCur, yCur));
         return points;
     }
 }

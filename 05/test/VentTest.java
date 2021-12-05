@@ -1,7 +1,5 @@
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -56,7 +54,7 @@ public class VentTest {
     }
 
     private static void testPointsAllMatch(Set<Point> points, Vent vent) {
-        List<Point> ventPoints = Arrays.asList(vent.points());
+        Set<Point> ventPoints = vent.points();
         assertEquals(points.size(), ventPoints.size());
         assertTrue(points.containsAll(ventPoints));
         assertTrue(ventPoints.containsAll(points));
