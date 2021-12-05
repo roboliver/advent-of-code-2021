@@ -1,8 +1,6 @@
 import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 
 import static org.junit.Assert.assertEquals;
 
@@ -28,17 +26,13 @@ public class MainTest {
             "22 11 13  6  5\n" +
             " 2  0 12  3  7";
 
-    private static BufferedReader sampleLineReader() {
-        return new BufferedReader(new StringReader(SAMPLE));
-    }
-
     @Test
     public void testWinningBingoScore() throws IOException {
-        assertEquals(4512, Main.winningBingoScore(sampleLineReader()));
+        assertEquals(4512, Main.winningBingoScore(Utils.testLineReader(SAMPLE)));
     }
 
     @Test
     public void testLastWinningBingoScore() throws IOException {
-        assertEquals(1924, Main.lastWinningBingoScore(sampleLineReader()));
+        assertEquals(1924, Main.lastWinningBingoScore(Utils.testLineReader(SAMPLE)));
     }
 }

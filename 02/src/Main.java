@@ -1,22 +1,14 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 
 public class Main {
-    private static final String INPUT = "input.txt";
-
     public static void main(String[] args) throws IOException {
-        try (BufferedReader lineReader = lineReader()) {
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
             System.out.println("Distance: " + distance(lineReader));
         }
-        try (BufferedReader lineReader = lineReader()) {
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
             System.out.println("Distance (actual): " + distanceActual(lineReader));
         }
-    }
-
-    private static BufferedReader lineReader() throws FileNotFoundException {
-        return new BufferedReader(new FileReader(INPUT));
     }
 
     public static int distance(BufferedReader lineReader) throws IOException {

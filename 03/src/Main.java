@@ -1,24 +1,16 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    private static final String INPUT = "input.txt";
-
     public static void main(String[] args) throws IOException {
-        try (BufferedReader lineReader = inputLineReader()) {
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
             System.out.println("Power consumption: " + powerConsumption(lineReader));
         }
-        try (BufferedReader lineReader = inputLineReader()) {
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
             System.out.println("Life support rating: " + lifeSupportRating(lineReader));
         }
-    }
-
-    private static BufferedReader inputLineReader() throws FileNotFoundException {
-        return new BufferedReader(new FileReader(INPUT));
     }
 
     public static int powerConsumption(BufferedReader lineReader) throws IOException {

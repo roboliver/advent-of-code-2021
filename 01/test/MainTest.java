@@ -1,8 +1,6 @@
 import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,17 +17,13 @@ public class MainTest {
             "260\n" +
             "263";
 
-    private static BufferedReader sampleLineReader() {
-        return new BufferedReader(new StringReader(SAMPLE));
-    }
-
     @Test
     public void testIncreasesCount() throws IOException {
-        assertEquals(7, Main.increasesCount(sampleLineReader()));
+        assertEquals(7, Main.increasesCount(Utils.testLineReader(SAMPLE)));
     }
 
     @Test
     public void testIncreasesCountSliding() throws IOException {
-        assertEquals(5, Main.increasesCountSliding(sampleLineReader()));
+        assertEquals(5, Main.increasesCountSliding(Utils.testLineReader(SAMPLE)));
     }
 }

@@ -1,14 +1,10 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class Main {
-    private static final String INPUT = "input.txt";
-
     // indexes into the array we use to save the minimum and maximum x and y values found when reading the lines, to use
     // to construct the seafloor to the appropriate size
     private static final int SEAFLOOR_XMIN = 0;
@@ -17,16 +13,12 @@ public class Main {
     private static final int SEAFLOOR_YMAX = 3;
 
     public static void main(String[] args) throws IOException {
-        try (BufferedReader lineReader = inputLineReader()) {
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
             System.out.println("Vent overlaps (without diagonals): " + ventOverlaps(lineReader, false));
         }
-        try (BufferedReader lineReader = inputLineReader()) {
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
             System.out.println("Vent overlaps (with diagonals): " + ventOverlaps(lineReader, true));
         }
-    }
-
-    private static BufferedReader inputLineReader() throws FileNotFoundException {
-        return new BufferedReader(new FileReader(INPUT));
     }
 
     public static int ventOverlaps(BufferedReader lineReader, boolean includeDiagonals) throws IOException {
