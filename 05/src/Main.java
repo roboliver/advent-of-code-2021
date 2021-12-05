@@ -9,13 +9,6 @@ import java.util.List;
 public class Main {
     private static final String INPUT = "input.txt";
 
-    // indexes into the array we use to save the minimum and maximum x and y values found when reading the lines, to use
-    // to construct the seafloor to the appropriate size
-    private static final int SEAFLOOR_XMIN = 0;
-    private static final int SEAFLOOR_XMAX = 1;
-    private static final int SEAFLOOR_YMIN = 2;
-    private static final int SEAFLOOR_YMAX = 3;
-
     public static void main(String[] args) throws IOException {
         try (BufferedReader lineReader = inputLineReader()) {
             System.out.println("Vent overlaps (without diagonals): " + ventOverlaps(lineReader, false));
@@ -30,18 +23,15 @@ public class Main {
     }
 
     public static int ventOverlaps(BufferedReader lineReader, boolean includeDiagonals) throws IOException {
-        int[] seafloorSize = new int[4];
-        Collection<Vent> vents = vents(lineReader, seafloorSize, includeDiagonals);
-        Seafloor seafloor = new Seafloor(seafloorSize[SEAFLOOR_XMIN], seafloorSize[SEAFLOOR_XMAX],
-                seafloorSize[SEAFLOOR_YMIN], seafloorSize[SEAFLOOR_YMAX]);
+        Collection<Vent> vents = vents(lineReader, includeDiagonals);
+        Seafloor seafloor = new Seafloor();
         for (Vent vent : vents) {
             seafloor.addVent(vent);
         }
         return seafloor.ventOverlaps();
     }
 
-    private static Collection<Vent> vents(BufferedReader lineReader, int[] seafloorSize,
-                                          boolean includeDiagonals) throws IOException {
+    private static Collection<Vent> vents(BufferedReader lineReader, boolean includeDiagonals) throws IOException {
         List<Vent> vents = new ArrayList<>();
         String line;
         while ((line = lineReader.readLine()) != null) {
@@ -50,10 +40,6 @@ public class Main {
             Point end = point(points[1]);
             if (includeDiagonals || start.x() == end.x() || start.y() == end.y()) {
                 vents.add(new Vent(start, end));
-                seafloorSize[SEAFLOOR_XMIN] = newMin(seafloorSize[SEAFLOOR_XMIN], start.x(), end.x());
-                seafloorSize[SEAFLOOR_XMAX] = newMax(seafloorSize[SEAFLOOR_XMAX], start.x(), end.x());
-                seafloorSize[SEAFLOOR_YMIN] = newMin(seafloorSize[SEAFLOOR_YMIN], start.y(), end.y());
-                seafloorSize[SEAFLOOR_YMAX] = newMax(seafloorSize[SEAFLOOR_YMAX], start.y(), end.y());
             }
         }
         return vents;
