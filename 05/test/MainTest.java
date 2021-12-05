@@ -24,7 +24,12 @@ public class MainTest {
     }
 
     @Test
-    public void testVentOverlaps() throws IOException {
-        assertEquals(5, Main.ventOverlaps(sampleLineReader()));
+    public void testVentOverlapsWithoutDiagonals() throws IOException {
+        assertEquals(5, Main.ventOverlaps(sampleLineReader(), false));
+    }
+
+    @Test
+    public void testVentOverlapsWithDiagonals() throws IOException {
+        assertEquals(12, Main.ventOverlaps(sampleLineReader(), true));
     }
 }

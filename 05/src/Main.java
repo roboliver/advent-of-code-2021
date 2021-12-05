@@ -18,7 +18,10 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         try (BufferedReader lineReader = inputLineReader()) {
-            System.out.println("Vent overlaps: " + ventOverlaps(lineReader));
+            System.out.println("Vent overlaps (without diagonals): " + ventOverlaps(lineReader, false));
+        }
+        try (BufferedReader lineReader = inputLineReader()) {
+            System.out.println("Vent overlaps (with diagonals): " + ventOverlaps(lineReader, true));
         }
     }
 
@@ -26,9 +29,9 @@ public class Main {
         return new BufferedReader(new FileReader(INPUT));
     }
 
-    public static int ventOverlaps(BufferedReader lineReader) throws IOException {
+    public static int ventOverlaps(BufferedReader lineReader, boolean includeDiagonals) throws IOException {
         int[] seafloorSize = new int[4];
-        Collection<Vent> vents = vents(lineReader, seafloorSize);
+        Collection<Vent> vents = vents(lineReader, seafloorSize, includeDiagonals);
         Seafloor seafloor = new Seafloor(seafloorSize[SEAFLOOR_XMIN], seafloorSize[SEAFLOOR_XMAX],
                 seafloorSize[SEAFLOOR_YMIN], seafloorSize[SEAFLOOR_YMAX]);
         for (Vent vent : vents) {
@@ -37,30 +40,29 @@ public class Main {
         return seafloor.ventOverlaps();
     }
 
-    private static Collection<Vent> vents(BufferedReader lineReader, int[] seafloorSize) throws IOException {
+    private static Collection<Vent> vents(BufferedReader lineReader, int[] seafloorSize,
+                                          boolean includeDiagonals) throws IOException {
         List<Vent> vents = new ArrayList<>();
         String line;
         while ((line = lineReader.readLine()) != null) {
-            String[] coords = line.split(" -> ");
-            int x1 = xCoord(coords[0]);
-            int y1 = yCoord(coords[0]);
-            int x2 = xCoord(coords[1]);
-            int y2 = yCoord(coords[1]);
-            vents.add(new Vent(x1, y1, x2, y2));
-            seafloorSize[SEAFLOOR_XMIN] = newMin(seafloorSize[SEAFLOOR_XMIN], x1, x2);
-            seafloorSize[SEAFLOOR_YMIN] = newMin(seafloorSize[SEAFLOOR_YMIN], y1, y2);
-            seafloorSize[SEAFLOOR_XMAX] = newMax(seafloorSize[SEAFLOOR_XMAX], x1, x2);
-            seafloorSize[SEAFLOOR_YMAX] = newMax(seafloorSize[SEAFLOOR_YMAX], y1, y2);
+            String[] points = line.split(" -> ");
+            Point start = point(points[0]);
+            Point end = point(points[1]);
+            if (includeDiagonals || start.x() == end.x() || start.y() == end.y()) {
+                vents.add(new Vent(start, end));
+                seafloorSize[SEAFLOOR_XMIN] = newMin(seafloorSize[SEAFLOOR_XMIN], start.x(), end.x());
+                seafloorSize[SEAFLOOR_YMIN] = newMin(seafloorSize[SEAFLOOR_YMIN], start.y(), end.y());
+                seafloorSize[SEAFLOOR_XMAX] = newMax(seafloorSize[SEAFLOOR_XMAX], start.x(), end.x());
+                seafloorSize[SEAFLOOR_YMAX] = newMax(seafloorSize[SEAFLOOR_YMAX], start.y(), end.y());
+            }
         }
         return vents;
     }
 
-    private static int xCoord(String coord) {
-        return Integer.parseInt(coord.substring(0, coord.indexOf(',')));
-    }
-
-    private static int yCoord(String coord) {
-        return Integer.parseInt(coord.substring(coord.indexOf(',') + 1));
+    private static Point point(String pointStr) {
+        int x = Integer.parseInt(pointStr.substring(0, pointStr.indexOf(',')));
+        int y = Integer.parseInt(pointStr.substring(pointStr.indexOf(',') + 1));
+        return new Point(x, y);
     }
 
     private static int newMin(int cur, int new1, int new2) {
