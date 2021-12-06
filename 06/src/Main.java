@@ -38,6 +38,7 @@ public class Main {
 
     private static long[] lanternfishCounts(BufferedReader lineReader) throws IOException {
         String[] fishStrs = lineReader.readLine().split(",");
+        lineReader.close();
         long[] fishCounts = new long[SPAWN_FREQ + SPINUP];
         for (String fishStr : fishStrs) {
             fishCounts[Integer.parseInt(fishStr)]++;

@@ -55,6 +55,7 @@ public class Main {
         while ((line = lineReader.readLine()) != null) {
             lines.add(line);
         }
+        lineReader.close();
         int oxygenGenRating = calcGasMachineRating(lines, true);
         int co2ScrubberRating = calcGasMachineRating(lines, false);
         return oxygenGenRating * co2ScrubberRating;

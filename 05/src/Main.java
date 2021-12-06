@@ -34,6 +34,7 @@ public class Main {
                 vents.add(new Vent(start, end));
             }
         }
+        lineReader.close();
         return vents;
     }
 

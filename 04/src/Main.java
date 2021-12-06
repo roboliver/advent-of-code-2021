@@ -82,6 +82,7 @@ public class Main {
             // add the final board if we didn't already
             boards.add(new BingoBoard(board));
         }
+        lineReader.close();
         return boards;
     }
 
