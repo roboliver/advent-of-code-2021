@@ -5,6 +5,7 @@ import java.util.stream.LongStream;
 public class Main {
     private static final int SPAWN_FREQ = 7; // frequency with which a lanternfish spawns new lanternfish
     private static final int SPINUP = 2; // extra days a newly spawned lanternfish takes to enter the spawning cycle
+
     public static void main(String[] args) throws IOException {
         try (BufferedReader lineReader = Utils.inputLineReader()) {
             System.out.println("Lanternfish after 80 days: " + lanternfishAfterNDays(lineReader, 80));
