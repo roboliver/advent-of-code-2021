@@ -1,9 +1,7 @@
 import java.util.*;
 
 public class SevenSegmentDecoder {
-    private static final Set<Character> VALID_CHARS = Collections.unmodifiableSet(
-            Set.of('a', 'b', 'c', 'd', 'e', 'f', 'g')
-    );
+    private static final Set<Character> VALID_CHARS = Set.of('a', 'b', 'c', 'd', 'e', 'f', 'g');
     private final Map<Set<Character>, Integer> decoder;
 
     public SevenSegmentDecoder(String[] signalPatterns) {
@@ -34,7 +32,7 @@ public class SevenSegmentDecoder {
         char d = remainingChar(patternsBySize.get(4), b, c, f);
         char g = remainingChar(patternsBySize.get(6), a, b, c, d, f);
         char e = remainingChar(patternsBySize.get(7), a, b, c, d, f, g);
-        //
+        // add all the decoded digits
         Map<Set<Character>, Integer> decoder = new HashMap<>();
         decoder.put(Set.of(a, b, c, e, f, g), 0);
         decoder.put(Set.of(c, f), 1);
@@ -49,67 +47,66 @@ public class SevenSegmentDecoder {
         return decoder;
     }
 
-    private static void charCountsUpdate(Map<Character, Integer> charCountsReverse, String pattern) {
+    private static void charCountsUpdate(Map<Character, Integer> charCounts, String pattern) {
         for (char c : pattern.toCharArray()) {
             if (!VALID_CHARS.contains(c)) {
                 throw new IllegalArgumentException("patterns must contain only characters a-g");
             }
-            Integer count = charCountsReverse.get(c);
+            Integer count = charCounts.get(c);
             if (count == null) {
                 count = 0;
             }
-            charCountsReverse.put(c, count + 1);
+            charCounts.put(c, count + 1);
         }
     }
 
-    private static void patternsBySizeUpdate(Map<Integer, List<String>> segCounts, String pattern) {
-        int segCount = pattern.length();
-        List<String> patternsWithCount = segCounts.get(segCount);
-        if (patternsWithCount == null) {
-            patternsWithCount = new ArrayList<>();
-            segCounts.put(segCount, patternsWithCount);
-        }
-        patternsWithCount.add(pattern);
+    private static void patternsBySizeUpdate(Map<Integer, List<String>> patternsBySize, String pattern) {
+        int size = pattern.length();
+        List<String> patternsWithSize = patternsBySize.computeIfAbsent(size, k -> new ArrayList<>());
+        patternsWithSize.add(pattern);
     }
 
-    private static Map<Integer, List<Character>> charCountsReverse(Map<Character, Integer> charCountsReverse) {
-        Map<Integer, List<Character>> charCounts = new HashMap<>();
-        for (Map.Entry<Character, Integer> charCountReverse : charCountsReverse.entrySet()) {
-            List<Character> charsWithCount = charCounts.get(charCountReverse.getValue());
-            if (charsWithCount == null) {
-                charsWithCount = new ArrayList<>();
-                charCounts.put(charCountReverse.getValue(), charsWithCount);
-            }
-            charsWithCount.add(charCountReverse.getKey());
+    private static Map<Integer, List<Character>> charCountsReverse(Map<Character, Integer> charCounts) {
+        // convert chars->counts to counts->chars
+        Map<Integer, List<Character>> charsByCount = new HashMap<>();
+        for (Map.Entry<Character, Integer> charCount : charCounts.entrySet()) {
+            List<Character> charsWithCount = charsByCount.computeIfAbsent(charCount.getValue(), k -> new ArrayList<>());
+            charsWithCount.add(charCount.getKey());
         }
-        return charCounts;
+        return charsByCount;
     }
 
-    private static char remainingChar(Collection<String> patterns, char... removeCharsArray) {
+    private static char remainingChar(Collection<String> patterns, char... knownCharsArray) {
         for (String pattern : patterns) {
-            Set<Character> removeChars = new HashSet<>();
-            for (char c : removeCharsArray) {
-                removeChars.add(c);
+            Set<Character> knownChars = new HashSet<>();
+            for (char c : knownCharsArray) {
+                knownChars.add(c);
             }
-            int iRemaining = -1;
+            int indexUnknown = -1; // the index of the single unknown char in the pattern
             char[] chars = pattern.toCharArray();
             for (int i = 0; i < chars.length; i++) {
-                char c = chars[i];
-                if (!removeChars.contains(c)) {
-                    if (iRemaining != -1) {
-                        iRemaining = -1;
+                if (!knownChars.contains(chars[i])) {
+                    if (indexUnknown != -1) {
+                        // we have already found an unknown char in this pattern, so we can't narrow it down to a single
+                        // one -- reset to -1 so we skip this pattern and try again with the next one
+                        indexUnknown = -1;
                         break;
                     }
-                    iRemaining = i;
+                    indexUnknown = i;
                 }
             }
-            if (iRemaining != -1) {
-                return chars[iRemaining];
+            if (indexUnknown != -1) {
+                return chars[indexUnknown];
             }
         }
         throw new IllegalStateException("none of the patterns had all the provided chars bar one");
     }
 
+    /**
+     * Takes a digit encoded in the SSD's encoding, and returns the decoded digit as an int.
+     * @param encodedDigit The encoded digit string
+     * @return The decoded digit int
+     */
     public int decode(String encodedDigit) {
         Set<Character> digitChars = new HashSet<>();
         for (char c : encodedDigit.toCharArray()) {
