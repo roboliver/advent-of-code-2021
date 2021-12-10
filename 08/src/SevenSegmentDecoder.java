@@ -28,17 +28,10 @@ public class SevenSegmentDecoder {
     }
 
     private static Map<Set<Character>, Integer> createDecoder(String[] signalPatterns) {
-        // map from chars a-g to the number of instances of them across all patterns
-        Map<Character, Integer> charCounts = new HashMap<>();
-        // reverse of the above map: so, from counts to chars with that count
-        Map<Integer, List<Character>> charsByCount;
+        // map from number of instances of each char a-g across all patterns, to the chars with that instance count
+        Map<Integer, List<Character>> charsByCount = charsByCount(signalPatterns);
         // map from pattern sizes to the patterns of that size
-        Map<Integer, List<String>> patternsBySize = new HashMap<>();
-        for (String pattern : signalPatterns) {
-            charCountsUpdate(charCounts, pattern);
-            patternsBySizeUpdate(patternsBySize, pattern);
-        }
-        charsByCount = charCountsReverse(charCounts);
+        Map<Integer, List<String>> patternsBySize = patternsBySize(signalPatterns);
         // get the chars we can identify by their counts being unique: b (6 instances) and f (9 instances)
         char b = charsByCount.get(6).get(0);
         char f = charsByCount.get(9).get(0);
@@ -46,7 +39,7 @@ public class SevenSegmentDecoder {
         char c = remainingChar(patternsBySize.get(2), f);
         char a = remainingChar(patternsBySize.get(3), c, f);
         char d = remainingChar(patternsBySize.get(4), b, c, f);
-        char g = remainingChar(patternsBySize.get(6), a, b, c, d, f);
+        char g = remainingChar(patternsBySize.get(5), a, c, d, f);
         char e = remainingChar(patternsBySize.get(7), a, b, c, d, f, g);
         // add all the decoded digits
         Map<Set<Character>, Integer> decoder = new HashMap<>();
@@ -63,23 +56,22 @@ public class SevenSegmentDecoder {
         return decoder;
     }
 
-    private static void charCountsUpdate(Map<Character, Integer> charCounts, String pattern) {
-        for (char c : pattern.toCharArray()) {
-            if (!VALID_CHARS.contains(c)) {
-                throw new IllegalArgumentException("patterns must contain only characters a-g");
+    private static Map<Integer, List<Character>> charsByCount(String[] signalPatterns) {
+        // first build a map from each char to its count, then reverse and return it
+        Map<Character, Integer> charCounts = new HashMap<>();
+        for (String pattern : signalPatterns) {
+            for (char c : pattern.toCharArray()) {
+                if (!VALID_CHARS.contains(c)) {
+                    throw new IllegalArgumentException("patterns must contain only characters a-g");
+                }
+                Integer count = charCounts.get(c);
+                if (count == null) {
+                    count = 0;
+                }
+                charCounts.put(c, count + 1);
             }
-            Integer count = charCounts.get(c);
-            if (count == null) {
-                count = 0;
-            }
-            charCounts.put(c, count + 1);
         }
-    }
-
-    private static void patternsBySizeUpdate(Map<Integer, List<String>> patternsBySize, String pattern) {
-        int size = pattern.length();
-        List<String> patternsWithSize = patternsBySize.computeIfAbsent(size, k -> new ArrayList<>());
-        patternsWithSize.add(pattern);
+        return charCountsReverse(charCounts);
     }
 
     private static Map<Integer, List<Character>> charCountsReverse(Map<Character, Integer> charCounts) {
@@ -90,6 +82,16 @@ public class SevenSegmentDecoder {
             charsWithCount.add(charCount.getKey());
         }
         return charsByCount;
+    }
+
+    private static Map<Integer, List<String>> patternsBySize(String[] signalPatterns) {
+        Map<Integer, List<String>> patternsBySize = new HashMap<>();
+        for (String pattern : signalPatterns) {
+            int size = pattern.length();
+            List<String> patternsWithSize = patternsBySize.computeIfAbsent(size, k -> new ArrayList<>());
+            patternsWithSize.add(pattern);
+        }
+        return patternsBySize;
     }
 
     private static char remainingChar(Collection<String> patterns, char... knownCharsArray) {
