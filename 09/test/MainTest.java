@@ -19,6 +19,6 @@ public class MainTest {
 
     @Test
     public void testLargest3BasinsProd() throws IOException {
-        assertEquals(1134, Main.largestNBasinProd(Utils.testLineReader(SAMPLE), 3));
+        assertEquals(1134, Main.largestNBasinsProduct(Utils.testLineReader(SAMPLE), 3));
     }
 }

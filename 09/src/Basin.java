@@ -1,3 +1,6 @@
+/**
+ * Represents a basin, which we will gradually add points to as we find them.
+ */
 public class Basin {
     private int size = 0;
     private int lowpoint = Integer.MAX_VALUE;
