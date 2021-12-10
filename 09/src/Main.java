@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,27 +9,42 @@ public class Main {
         try (BufferedReader lineReader = Utils.inputLineReader()) {
             System.out.println("Lowpoint risk level: " + lowpointRiskLevel(lineReader));
         }
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
+            System.out.println("Largest 3 basins product: " + largestNBasinProd(lineReader, 3));
+        }
     }
 
     public static int lowpointRiskLevel(BufferedReader lineReader) throws IOException {
         int[][] heights = heights(lineReader);
-        int riskLevel = 0;
-        for (int i = 0; i < heights.length; i++) {
-            for (int j = 0; j < heights[i].length; j++) {
-                int height = heights[i][j];
-                int heightUp = i == 0 ? Integer.MAX_VALUE : heights[i - 1][j];
-                int heightDown = i == heights.length - 1 ? Integer.MAX_VALUE : heights[i + 1][j];
-                int heightLeft = j == 0 ? Integer.MAX_VALUE : heights[i][j - 1];
-                int heightRight = j == heights[i].length - 1 ? Integer.MAX_VALUE : heights[i][j + 1];
-                boolean lowpoint = height < heightUp && height < heightDown
-                        && height < heightLeft && height < heightRight;
-                if (lowpoint) {
-                    riskLevel += 1 + height;
-                }
-            }
-        }
-        return riskLevel;
+        Heightmap heightmap = new Heightmap(heights);
+        return heightmap.lowpointRiskLevel();
     }
+
+    public static int largestNBasinProd(BufferedReader lineReader, int n) throws IOException {
+        int[][] heights = heights(lineReader);
+        Heightmap heightmap = new Heightmap(heights);
+        return heightmap.largestNBasins(n);
+    }
+
+//    public static int lowpointRiskLevel(BufferedReader lineReader) throws IOException {
+//        int[][] heights = heights(lineReader);
+//        int riskLevel = 0;
+//        for (int i = 0; i < heights.length; i++) {
+//            for (int j = 0; j < heights[i].length; j++) {
+//                int height = heights[i][j];
+//                int heightUp = i == 0 ? Integer.MAX_VALUE : heights[i - 1][j];
+//                int heightDown = i == heights.length - 1 ? Integer.MAX_VALUE : heights[i + 1][j];
+//                int heightLeft = j == 0 ? Integer.MAX_VALUE : heights[i][j - 1];
+//                int heightRight = j == heights[i].length - 1 ? Integer.MAX_VALUE : heights[i][j + 1];
+//                boolean lowpoint = height < heightUp && height < heightDown
+//                        && height < heightLeft && height < heightRight;
+//                if (lowpoint) {
+//                    riskLevel += 1 + height;
+//                }
+//            }
+//        }
+//        return riskLevel;
+//    }
 
     private static int[][] heights(BufferedReader lineReader) throws IOException {
         List<List<Integer>> heights = new ArrayList<>();

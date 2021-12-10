@@ -1,5 +1,21 @@
 import java.util.*;
 
+/**
+ * Class used to decode seven-segment display inputs. An instance of this class is constructed with the full set of
+ * encoded signal patterns for digits 0-9, and builds an internal mapping that lets it convert encoded digit strings
+ * into the decoded int that the string represents.
+ *
+ * The segments that correspond to each decoded character, for reference:
+ *
+ *     aaaa
+ *    b    c
+ *    b    c
+ *     dddd
+ *    e    f
+ *    e    f
+ *     gggg
+ *
+ */
 public class SevenSegmentDecoder {
     private static final Set<Character> VALID_CHARS = Set.of('a', 'b', 'c', 'd', 'e', 'f', 'g');
     private final Map<Set<Character>, Integer> decoder;

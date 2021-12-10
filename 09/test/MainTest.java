@@ -16,4 +16,9 @@ public class MainTest {
     public void testLowpointRiskLevel() throws IOException {
         assertEquals(15, Main.lowpointRiskLevel(Utils.testLineReader(SAMPLE)));
     }
+
+    @Test
+    public void testLargest3BasinsProd() throws IOException {
+        assertEquals(1134, Main.largestNBasinProd(Utils.testLineReader(SAMPLE), 3));
+    }
 }
