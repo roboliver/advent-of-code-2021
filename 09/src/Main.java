@@ -22,7 +22,7 @@ public class Main {
     public static int largestNBasinsProduct(BufferedReader lineReader, int n) throws IOException {
         int[][] heights = heights(lineReader);
         Heightmap heightmap = new Heightmap(heights);
-        return heightmap.largestNBasins(n);
+        return heightmap.largestNBasinsProduct(n);
     }
 
     private static int[][] heights(BufferedReader lineReader) throws IOException {

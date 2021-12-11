@@ -61,7 +61,7 @@ public class Heightmap {
                 .reduce(0, Integer::sum);
     }
 
-    public int largestNBasins(int n) {
+    public int largestNBasinsProduct(int n) {
         int prod = 1;
         for (int i = 0; i < n; i++) {
             int basinIndex = basins.size() - 1 - i;
