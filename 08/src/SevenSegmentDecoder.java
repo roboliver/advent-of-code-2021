@@ -100,21 +100,21 @@ public class SevenSegmentDecoder {
             for (char c : knownCharsArray) {
                 knownChars.add(c);
             }
-            int indexUnknown = -1; // the index of the single unknown char in the pattern
-            char[] chars = pattern.toCharArray();
-            for (int i = 0; i < chars.length; i++) {
-                if (!knownChars.contains(chars[i])) {
-                    if (indexUnknown != -1) {
+            int unknownCharIndex = -1; // the index of the single unknown char in the pattern
+            char[] patternChars = pattern.toCharArray();
+            for (int i = 0; i < patternChars.length; i++) {
+                if (!knownChars.contains(patternChars[i])) {
+                    if (unknownCharIndex != -1) {
                         // we have already found an unknown char in this pattern, so we can't narrow it down to a single
                         // one -- reset to -1 so we skip this pattern and try again with the next one
-                        indexUnknown = -1;
+                        unknownCharIndex = -1;
                         break;
                     }
-                    indexUnknown = i;
+                    unknownCharIndex = i;
                 }
             }
-            if (indexUnknown != -1) {
-                return chars[indexUnknown];
+            if (unknownCharIndex != -1) {
+                return patternChars[unknownCharIndex];
             }
         }
         throw new IllegalStateException("none of the patterns had all the provided chars bar one");

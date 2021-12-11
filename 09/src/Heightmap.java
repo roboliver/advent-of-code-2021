@@ -30,7 +30,7 @@ public class Heightmap {
         this.basins = Collections.unmodifiableList(basins);
     }
 
-    private void basinBuild(int[][] heights, Basin[][] basinGrid, int row, int col, Basin basin) {
+    private static void basinBuild(int[][] heights, Basin[][] basinGrid, int row, int col, Basin basin) {
         int point = heights[row][col];
         if (isPartOfNewBasin(point, basinGrid[row][col])) {
             basinGrid[row][col] = basin;
