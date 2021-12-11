@@ -43,6 +43,7 @@ public class Main {
                 heightsArray[i][j] = lineHeights.get(j);
             }
         }
+        lineReader.close();
         return heightsArray;
     }
 }
