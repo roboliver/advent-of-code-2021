@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
 
 public class Main {
     private enum NavChar {
@@ -10,40 +9,29 @@ public class Main {
         BRACE('{', '}', 1197, 3),
         CHEVRON('<', '>', 25137, 4);
 
-        private char left;
-        private char right;
-        private int corruptedScore;
-        private int autocompleteScore;
-        private NavChar(char left, char right, int corruptedScore, int autocompleteScore) {
+        private final char left;
+        private final char right;
+        private final long corruptedScore;
+        private final long autocompleteScore;
+        NavChar(char left, char right, int corruptedScore, int autocompleteScore) {
             this.left = left;
             this.right = right;
             this.corruptedScore = corruptedScore;
             this.autocompleteScore = autocompleteScore;
         }
-        public char left() {
-            return left;
-        }
-        public char right() {
-            return right;
-        }
-        public int corruptedScore() {
-            return corruptedScore;
-        }
-        public int autocompleteScore() {
-            return autocompleteScore;
-        }
 
         public static NavChar fromLeft(char left) {
-            return fromChar(left, NavChar::left);
+            for (NavChar navChar : values()) {
+                if (navChar.left == left) {
+                    return navChar;
+                }
+            }
+            return null;
         }
 
         public static NavChar fromRight(char right) {
-            return fromChar(right, NavChar::right);
-        }
-
-        private static NavChar fromChar(char c, Function<NavChar, Character> mapper) {
             for (NavChar navChar : values()) {
-                if (mapper.apply(navChar) == c) {
+                if (navChar.right == right) {
                     return navChar;
                 }
             }
@@ -60,8 +48,8 @@ public class Main {
         }
     }
 
-    public static int errorScore(BufferedReader lineReader, boolean corruptedNotIncomplete) throws IOException {
-        List<Integer> scores = new ArrayList<>();
+    public static long errorScore(BufferedReader lineReader, boolean corruptedNotIncomplete) throws IOException {
+        List<Long> scores = new ArrayList<>();
         String line;
         line:
         while ((line = lineReader.readLine()) != null) {
@@ -75,25 +63,25 @@ public class Main {
                     NavChar ncRight = NavChar.fromRight(c);
                     if (ncLeft != ncRight) {
                         if (corruptedNotIncomplete) {
-                            scores.add(ncRight.corruptedScore());
+                            scores.add(ncRight.corruptedScore);
                         }
                         continue line;
                     }
                 }
             }
             if (!corruptedNotIncomplete) {
-                int autocompleteScore = 0;
+                long autocompleteScore = 0;
                 while (!stack.isEmpty()) {
                     NavChar ncRem = stack.pop();
                     autocompleteScore *= 5;
-                    autocompleteScore += ncRem.autocompleteScore();
+                    autocompleteScore += ncRem.autocompleteScore;
                 }
                 scores.add(autocompleteScore);
             }
         }
         if (corruptedNotIncomplete) {
             return scores.stream()
-                    .reduce(0, Integer::sum);
+                    .reduce(0L, Long::sum);
         } else {
             Collections.sort(scores);
             return scores.get(scores.size() / 2);
