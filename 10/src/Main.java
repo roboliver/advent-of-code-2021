@@ -3,7 +3,11 @@ import java.io.IOException;
 import java.util.*;
 
 public class Main {
-    private enum NavChar {
+    /**
+     * Enum used to represent navigation system character pairs. Each element is a pair of left and right characters,
+     * and the corrupted and autocomplete scores it results in when it causes the respective errors.
+     */
+    private enum NavPair {
         PARENTHESIS('(', ')', 3, 1),
         SQUARE_BRACKET('[', ']', 57, 2),
         BRACE('{', '}', 1197, 3),
@@ -13,26 +17,26 @@ public class Main {
         private final char right;
         private final long corruptedScore;
         private final long autocompleteScore;
-        NavChar(char left, char right, int corruptedScore, int autocompleteScore) {
+        NavPair(char left, char right, int corruptedScore, int autocompleteScore) {
             this.left = left;
             this.right = right;
             this.corruptedScore = corruptedScore;
             this.autocompleteScore = autocompleteScore;
         }
 
-        public static NavChar fromLeft(char left) {
-            for (NavChar navChar : values()) {
-                if (navChar.left == left) {
-                    return navChar;
+        public static NavPair fromLeft(char left) {
+            for (NavPair navPair : values()) {
+                if (navPair.left == left) {
+                    return navPair;
                 }
             }
             return null;
         }
 
-        public static NavChar fromRight(char right) {
-            for (NavChar navChar : values()) {
-                if (navChar.right == right) {
-                    return navChar;
+        public static NavPair fromRight(char right) {
+            for (NavPair navPair : values()) {
+                if (navPair.right == right) {
+                    return navPair;
                 }
             }
             return null;
@@ -51,30 +55,36 @@ public class Main {
     public static long errorScore(BufferedReader lineReader, boolean corruptedNotIncomplete) throws IOException {
         List<Long> scores = new ArrayList<>();
         String line;
-        line:
         while ((line = lineReader.readLine()) != null) {
-            Deque<NavChar> stack = new ArrayDeque<>();
+            Deque<NavPair> stack = new ArrayDeque<>();
+            boolean lineCorrupted = false;
             for (char c : line.toCharArray()) {
-                NavChar ncLeft = NavChar.fromLeft(c);
-                if (ncLeft != null) {
-                    stack.push(ncLeft);
+                NavPair npLeft = NavPair.fromLeft(c);
+                if (npLeft != null) {
+                    // an opening character, so push it and proceed to the next character
+                    stack.push(npLeft);
                 } else {
-                    ncLeft = stack.pop();
-                    NavChar ncRight = NavChar.fromRight(c);
-                    if (ncLeft != ncRight) {
+                    // a closing character, so check whether it fits the one on top of the stack
+                    npLeft = stack.pop();
+                    NavPair npRight = NavPair.fromRight(c);
+                    if (npLeft != npRight) {
+                        lineCorrupted = true;
                         if (corruptedNotIncomplete) {
-                            scores.add(ncRight.corruptedScore);
+                            scores.add(npRight.corruptedScore);
                         }
-                        continue line;
+                        // give up on the line now -- we've either added the corrupted score, or need to skip this line
+                        // if we're looking for the autocomplete score
+                        break;
                     }
                 }
             }
-            if (!corruptedNotIncomplete) {
+            if (!corruptedNotIncomplete && !lineCorrupted) {
+                // we are looking for the autocomplete score, and this line isn't corrupted, so we should include it
                 long autocompleteScore = 0;
                 while (!stack.isEmpty()) {
-                    NavChar ncRem = stack.pop();
+                    NavPair np = stack.pop();
                     autocompleteScore *= 5;
-                    autocompleteScore += ncRem.autocompleteScore;
+                    autocompleteScore += np.autocompleteScore;
                 }
                 scores.add(autocompleteScore);
             }
