@@ -22,22 +22,28 @@ public class Main {
 
     private static int exploreCaves(Cave cur, Set<Cave> seen, boolean allowSingleRevisit, Cave toRevisit, boolean doneRevisit) {
         if (cur.type() == Cave.Type.END) {
-            Set<Cave> seenNew = new HashSet<>(seen);
-            seenNew.add(cur);
+            // we've reached the end on this route -- it was valid unless we were meant to revisit a cave but didn't
             return toRevisit == null || doneRevisit ? 1 : 0;
         } else {
+            int paths = 0;
+            // the set of caves we've seen and won't revisit on this route, now including the current cave
             Set<Cave> seenNew = new HashSet<>(seen);
             if (cur.type() != Cave.Type.LARGE) {
                 seenNew.add(cur);
             }
-            int paths = 0;
             for (Cave connected : cur.connected()) {
                 if (!seenNew.contains(connected)) {
+                    // this is a viable path, so include all the valid routes that span from it
                     paths += exploreCaves(connected, seenNew, allowSingleRevisit, toRevisit, doneRevisit || cur == toRevisit);
                 }
             }
             if (allowSingleRevisit && toRevisit == null && cur.type() == Cave.Type.SMALL) {
+                // we can do a single revisit, haven't already decided which cave we will revisit, and the current cave
+                // is small, and so could be revisited -- so, additionally branch from this point to all routes that
+                // would involve revisiting this cave
                 for (Cave connected : cur.connected()) {
+                    // note we use the original set of seen caves here, i.e. excluding the current cave, so that we will
+                    // revisit this cave if we encounter it again
                     if (!seen.contains(connected)) {
                         paths += exploreCaves(connected, seen, true, cur, false);
                     }

@@ -3,6 +3,9 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * A cave (including the start and end positions, which I am treating as caves), and the other caves it is connected to.
+ */
 public class Cave {
     public enum Type {
         START,
