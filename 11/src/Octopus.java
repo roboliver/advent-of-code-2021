@@ -6,10 +6,10 @@ public class Octopus {
     private static final int MAX_ENERGY = 9;
     private int energy;
     private final List<Octopus> neighbours = new ArrayList<>();
-    private final Main.Counter flashCounter;
+    private final Counter flashCounter;
     private boolean flashed = false;
 
-    public Octopus(int energy, Main.Counter flashCounter) {
+    public Octopus(int energy, Counter flashCounter) {
         if (energy < MIN_ENERGY || energy > MAX_ENERGY) {
             throw new IllegalArgumentException(String.format("energy must be between %d and %d", MIN_ENERGY, MAX_ENERGY));
         }

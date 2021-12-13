@@ -48,21 +48,6 @@ public class Main {
         }
     }
 
-    /**
-     *
-     */
-    public static class Counter {
-        private int count = 0;
-
-        public void increment() {
-            count++;
-        }
-
-        public int getCount() {
-            return count;
-        }
-    }
-
     private static Collection<Octopus> octopuses(BufferedReader lineReader, Counter counter) throws IOException {
         int[][] valsArray = Utils.readIntArray(lineReader);
         Octopus[][] octopusesArray = new Octopus[valsArray.length][valsArray[0].length];
