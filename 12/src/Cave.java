@@ -7,11 +7,11 @@ import java.util.Set;
  * A cave (including the start and end positions, which I am treating as caves), and the other caves it is connected to.
  */
 public class Cave {
-    public enum Type {
+    private enum Type {
         START,
         END,
         SMALL,
-        LARGE;
+        LARGE
     }
 
     public final String name;
@@ -40,8 +40,20 @@ public class Cave {
         other.connected.add(this);
     }
 
-    public Type type() {
-        return type;
+    public boolean isStart() {
+        return type == Type.START;
+    }
+
+    public boolean isEnd() {
+        return type == Type.END;
+    }
+
+    public boolean isSmall() {
+        return type == Type.SMALL;
+    }
+
+    public boolean isLarge() {
+        return type == Type.LARGE;
     }
 
     public Set<Cave> connected() {
