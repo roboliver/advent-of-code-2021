@@ -22,6 +22,7 @@ public class Main {
 
     private static int exploreCaves(Cave cur, Set<Cave> seen, boolean allowSingleRevisit, boolean doneRevisit) {
         if (cur.isEnd()) {
+            // we've reached the end -- this was a valid route
             return 1;
         } else {
             // the set of caves we've seen on this route, now including the current cave if applicable
