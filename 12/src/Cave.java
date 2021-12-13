@@ -4,27 +4,15 @@ import java.util.Objects;
 import java.util.Set;
 
 public class Cave {
-    private enum CaveType {
-        START(true, false, false),
-        END(false, true, false),
-        SMALL(false, false, false),
-        LARGE(false, false, true);
-
-        private final boolean isStart;
-        private final boolean isEnd;
-        private final boolean isRevisitable;
-
-        CaveType(boolean isStart, boolean isEnd, boolean isRevisitable) {
-            this.isStart = isStart;
-            this.isEnd = isEnd;
-            this.isRevisitable = isRevisitable;
-        }
+    public enum Type {
+        START,
+        END,
+        SMALL,
+        LARGE;
     }
 
-    public String name() {return name;}
-
     public final String name;
-    private final CaveType type;
+    private final Type type;
     private final Set<Cave> connected = new HashSet<>();
 
     public Cave(String name) {
@@ -32,15 +20,15 @@ public class Cave {
         this.type = determineType(name);
     }
 
-    private static CaveType determineType(String name) {
+    private static Type determineType(String name) {
         if (name.equals("start")) {
-            return CaveType.START;
+            return Type.START;
         } else if (name.equals("end")) {
-            return CaveType.END;
+            return Type.END;
         } else if (name.equals(name.toLowerCase())) {
-            return CaveType.SMALL;
+            return Type.SMALL;
         } else {
-            return CaveType.LARGE;
+            return Type.LARGE;
         }
     }
 
@@ -49,16 +37,8 @@ public class Cave {
         other.connected.add(this);
     }
 
-    public boolean isStart() {
-        return type.isStart;
-    }
-
-    public boolean isEnd() {
-        return type.isEnd;
-    }
-
-    public boolean isRevisitable() {
-        return type.isRevisitable;
+    public Type type() {
+        return type;
     }
 
     public Set<Cave> connected() {

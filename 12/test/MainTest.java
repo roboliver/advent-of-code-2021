@@ -46,15 +46,15 @@ public class MainTest {
 
     @Test
     public void testCountPaths() throws IOException {
-        assertEquals(10, Main.countPaths(Utils.testLineReader(SAMPLE_SMALL)));
-        assertEquals(19, Main.countPaths(Utils.testLineReader(SAMPLE_MEDIUM)));
-        assertEquals(226, Main.countPaths(Utils.testLineReader(SAMPLE_LARGE)));
+        assertEquals(10, Main.countPaths(Utils.testLineReader(SAMPLE_SMALL), false));
+        assertEquals(19, Main.countPaths(Utils.testLineReader(SAMPLE_MEDIUM), false));
+        assertEquals(226, Main.countPaths(Utils.testLineReader(SAMPLE_LARGE), false));
     }
 
     @Test
     public void testCountPathsWithRevisiting() throws IOException {
-//        assertEquals(36, Main.countPathsWithRevisits(Utils.testLineReader(SAMPLE_SMALL)));
-//        assertEquals(103, Main.countPathsWithRevisits(Utils.testLineReader(SAMPLE_MEDIUM)));
-//        assertEquals(3509, Main.countPathsWithRevisits(Utils.testLineReader(SAMPLE_LARGE)));
+        assertEquals(36, Main.countPaths(Utils.testLineReader(SAMPLE_SMALL), true));
+        assertEquals(103, Main.countPaths(Utils.testLineReader(SAMPLE_MEDIUM), true));
+        assertEquals(3509, Main.countPaths(Utils.testLineReader(SAMPLE_LARGE), true));
     }
 }
