@@ -34,7 +34,7 @@ public class Octopus {
 
     public void resetFlash() {
         if (flashed) {
-            energy = 0;
+            energy = MIN_ENERGY;
             flashed = false;
         }
     }

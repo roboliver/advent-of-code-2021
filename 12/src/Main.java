@@ -17,10 +17,10 @@ public class Main {
 
     public static int countPaths(BufferedReader lineReader, boolean allowSingleRevisit) throws IOException {
         Cave caveSystem = caveSystem(lineReader);
-        return exploreCaves(caveSystem, new HashSet<>(), allowSingleRevisit, false);
+        return exploreCaves(caveSystem, new HashSet<>(), !allowSingleRevisit);
     }
 
-    private static int exploreCaves(Cave cur, Set<Cave> seen, boolean allowSingleRevisit, boolean doneRevisit) {
+    private static int exploreCaves(Cave cur, Set<Cave> seen, boolean doneRevisit) {
         if (cur.isEnd()) {
             // we've reached the end -- this was a valid route
             return 1;
@@ -33,11 +33,11 @@ public class Main {
             int paths = 0;
             for (Cave connected : cur.connected()) {
                 if (!seenNew.contains(connected)
-                        || (allowSingleRevisit && !connected.isStart() && !doneRevisit)) {
+                        || (!doneRevisit && !connected.isStart())) {
                     // we either haven't seen this cave, or we have seen it, but can revisit it, and haven't revisited
                     // a cave on this route yet -- so it's valid, and we should include all the routes that go through
                     // it from our current cave
-                    paths += exploreCaves(connected, seenNew, allowSingleRevisit, doneRevisit || seenNew.contains(connected));
+                    paths += exploreCaves(connected, seenNew, doneRevisit || seenNew.contains(connected));
                 }
             }
             return paths;
