@@ -1,7 +1,6 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.StringReader;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Utils {
     private static final String INPUT_DEFAULT = "input.txt";
@@ -35,5 +34,27 @@ public class Utils {
      */
     public static BufferedReader testLineReader(String sampleText) {
         return new BufferedReader(new StringReader(sampleText));
+    }
+
+    public static int[][] readIntArray(BufferedReader lineReader) throws IOException {
+        List<List<Integer>> valuesList = new ArrayList<>();
+        String line;
+        while ((line = lineReader.readLine()) != null) {
+            List<Integer> lineValues = new ArrayList<>();
+            valuesList.add(lineValues);
+            for (char c : line.toCharArray()) {
+                lineValues.add(Character.getNumericValue(c));
+            }
+        }
+        int[][] valuesArray = new int[valuesList.size()][];
+        for (int i = 0; i < valuesArray.length; i++) {
+            List<Integer> lineValues = valuesList.get(i);
+            valuesArray[i] = new int[lineValues.size()];
+            for (int j = 0; j < lineValues.size(); j++) {
+                valuesArray[i][j] = lineValues.get(j);
+            }
+        }
+        lineReader.close();
+        return valuesArray;
     }
 }

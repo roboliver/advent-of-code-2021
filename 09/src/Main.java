@@ -14,36 +14,14 @@ public class Main {
     }
 
     public static int lowpointRiskLevel(BufferedReader lineReader) throws IOException {
-        int[][] heights = heights(lineReader);
+        int[][] heights = Utils.readIntArray(lineReader);
         Heightmap heightmap = new Heightmap(heights);
         return heightmap.lowpointRiskLevel();
     }
 
     public static int largestNBasinsProduct(BufferedReader lineReader, int n) throws IOException {
-        int[][] heights = heights(lineReader);
+        int[][] heights = Utils.readIntArray(lineReader);
         Heightmap heightmap = new Heightmap(heights);
         return heightmap.largestNBasinsProduct(n);
-    }
-
-    private static int[][] heights(BufferedReader lineReader) throws IOException {
-        List<List<Integer>> heights = new ArrayList<>();
-        String line;
-        while ((line = lineReader.readLine()) != null) {
-            List<Integer> lineHeights = new ArrayList<>();
-            heights.add(lineHeights);
-            for (char c : line.toCharArray()) {
-                lineHeights.add(Character.getNumericValue(c));
-            }
-        }
-        int[][] heightsArray = new int[heights.size()][];
-        for (int i = 0; i < heightsArray.length; i++) {
-            List<Integer> lineHeights = heights.get(i);
-            heightsArray[i] = new int[lineHeights.size()];
-            for (int j = 0; j < lineHeights.size(); j++) {
-                heightsArray[i][j] = lineHeights.get(j);
-            }
-        }
-        lineReader.close();
-        return heightsArray;
     }
 }
