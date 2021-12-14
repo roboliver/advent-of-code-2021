@@ -20,24 +20,24 @@ public class Main {
         return exploreCaves(caveSystem, new HashSet<>(), !allowSingleRevisit);
     }
 
-    private static int exploreCaves(Cave cur, Set<Cave> seen, boolean doneRevisit) {
+    private static int exploreCaves(Cave cur, Set<Cave> visited, boolean doneRevisit) {
         if (cur.isEnd()) {
             // we've reached the end -- this was a valid route
             return 1;
         } else {
-            // the set of caves we've seen on this route, now including the current cave if applicable
-            Set<Cave> seenNew = new HashSet<>(seen);
+            // the set of caves we've been through on this route, now including the current cave if applicable
+            Set<Cave> visitedNew = new HashSet<>(visited);
             if (!cur.isLarge()) {
-                seenNew.add(cur);
+                visitedNew.add(cur);
             }
             int paths = 0;
             for (Cave connected : cur.connected()) {
-                if (!seenNew.contains(connected)
+                if (!visitedNew.contains(connected)
                         || (!doneRevisit && !connected.isStart())) {
                     // we either haven't seen this cave, or we have seen it, but can revisit it, and haven't revisited
                     // a cave on this route yet -- so it's valid, and we should include all the routes that go through
                     // it from our current cave
-                    paths += exploreCaves(connected, seenNew, doneRevisit || seenNew.contains(connected));
+                    paths += exploreCaves(connected, visitedNew, doneRevisit || visitedNew.contains(connected));
                 }
             }
             return paths;
