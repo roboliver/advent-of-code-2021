@@ -16,16 +16,16 @@ public class Paper {
     }
 
     public void fold(Fold fold) {
-        Set<Point> movedDots = new HashSet<>();
+        Set<Point> reflectedDots = new HashSet<>();
         Iterator<Point> iter = dots.iterator();
         while (iter.hasNext()) {
             Point dot = iter.next();
             if (isPastFold(dot, fold)) {
-                movedDots.add(reflect(dot, fold));
+                reflectedDots.add(reflect(dot, fold));
                 iter.remove();
             }
         }
-        dots.addAll(movedDots);
+        dots.addAll(reflectedDots);
         if (fold.isXAxis()) {
             width = fold.position();
         } else {
