@@ -1,11 +1,11 @@
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CavePosition {
     public static final int MIN_CHITONS = 1;
     public static final int MAX_CHITONS = 9;
 
-    private Set<CavePosition> neighbours = new HashSet<>();
+    private List<CavePosition> neighbours = new ArrayList<>();
     private final int chitons;
     private int bestPathTo;
 

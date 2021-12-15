@@ -12,8 +12,11 @@ public class Main {
     }
 
     public static int bestPathRisk(BufferedReader lineReader, int scale) throws IOException {
+        long timeBefore = System.currentTimeMillis();
         int[][] caveArray = scaleCave(Utils.readIntArray(lineReader), scale);
         CavePosition[][] cave = navigateCave(caveArray);
+        long timeAfter = System.currentTimeMillis();
+        System.out.println("calculated in " + (timeAfter - timeBefore) + "ms");
         return caveExit(cave).bestPathTo();
     }
 
