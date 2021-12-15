@@ -19,6 +19,11 @@ public class MainTest {
 
     @Test
     public void testBestPathRisk() throws IOException {
-        assertEquals(40, Main.bestPathRisk(Utils.testLineReader(SAMPLE)));
+        assertEquals(40, Main.bestPathRisk(Utils.testLineReader(SAMPLE), 1));
+    }
+
+    @Test
+    public void testBestPathRiskQuintupledCave() throws IOException {
+        assertEquals(315, Main.bestPathRisk(Utils.testLineReader(SAMPLE), 5));
     }
 }

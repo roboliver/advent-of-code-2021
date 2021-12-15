@@ -21,7 +21,7 @@ public class CavePosition {
     }
 
     public void addNeighbour(CavePosition neighbour) {
-        System.out.println("adding neighbour [r" + neighbour.row + ",c" + neighbour.col + "] to [r" + row + ",c" + col + "]");
+        //System.out.println("adding neighbour [r" + neighbour.row + ",c" + neighbour.col + "] to [r" + row + ",c" + col + "]");
         //System.out.println("adding a neighbour, chitons=" + chitons);
         neighbours.add(neighbour);
         neighbour.neighbours.add(this);

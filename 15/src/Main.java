@@ -4,12 +4,16 @@ import java.io.IOException;
 public class Main {
     public static void main(String[] args) throws IOException {
         try (BufferedReader lineReader = Utils.inputLineReader()) {
-            System.out.println("Risk of best path: " + bestPathRisk(lineReader));
+            System.out.println("Risk of best path: " + bestPathRisk(lineReader, 1));
+        }
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
+            System.out.println("Risk of best path in quintupled cave: " + bestPathRisk(lineReader, 5));
         }
     }
 
-    public static int bestPathRisk(BufferedReader lineReader) throws IOException {
+    public static int bestPathRisk(BufferedReader lineReader, int caveMultiplier) throws IOException {
         int[][] cavePositionsArray = Utils.readIntArray(lineReader);
+        cavePositionsArray = scaleCave(cavePositionsArray, caveMultiplier);
         CavePosition[][] cavePositions = new CavePosition[cavePositionsArray.length][cavePositionsArray[0].length];
         for (int row = 0; row < cavePositions.length; row++) {
             for (int col = 0; col < cavePositions[row].length; col++) {
@@ -31,8 +35,25 @@ public class Main {
                 }
             }
         }
-        printGrid(cavePositions);
+        //printGrid(cavePositions);
         return cavePositions[cavePositions.length-1][cavePositions[0].length-1].bestPath();
+    }
+
+    private static int[][] scaleCave(int[][] caveOriginal, int scale) {
+        int[][] caveNew = new int[caveOriginal.length * scale][caveOriginal[0].length * scale];
+        for (int row = 0; row < caveNew.length; row++) {
+            int rowScalePos = row / caveOriginal.length;
+            int rowOriginal = row % caveOriginal.length;
+            for (int col = 0; col < caveNew[row].length; col++) {
+                int colScalePos = col / caveOriginal[rowOriginal].length;
+                int colOriginal = col % caveOriginal[rowOriginal].length;
+                int sumScalePos = rowScalePos + colScalePos;
+                int chitonOriginal = caveOriginal[rowOriginal][colOriginal];
+                int chitonNew = ((chitonOriginal + sumScalePos - 1) % 9) + 1;
+                caveNew[row][col] = chitonNew;
+            }
+        }
+        return caveNew;
     }
 
     private static void printGrid(CavePosition[][] cavePositions) {
