@@ -1,52 +1,47 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CavePosition {
-    private List<CavePosition> neighbours = new ArrayList<>();
+    public static final int MIN_CHITONS = 1;
+    public static final int MAX_CHITONS = 9;
+
+    private Set<CavePosition> neighbours = new HashSet<>();
     private final int chitons;
-    private int bestPath = Integer.MAX_VALUE;
-    private final int row;
-    private final int col;
+    private int bestPathTo;
 
-    public static CavePosition createStart(int chitons, int row, int col) {
-        CavePosition cavePosition = new CavePosition(chitons, row, col);
-        cavePosition.bestPath = 0;
-        return cavePosition;
-    }
-
-    public CavePosition(int chitons, int row, int col) {
+    public CavePosition(int chitons, boolean isStart) {
+        if (chitons < MIN_CHITONS || chitons > MAX_CHITONS) {
+            throw new IllegalArgumentException("chitons must be between " + MIN_CHITONS + " and " + MAX_CHITONS);
+        }
         this.chitons = chitons;
-        this.row = row;
-        this.col = col;
+        this.bestPathTo = isStart ? 0 : Integer.MAX_VALUE;
     }
 
     public void addNeighbour(CavePosition neighbour) {
-        //System.out.println("adding neighbour [r" + neighbour.row + ",c" + neighbour.col + "] to [r" + row + ",c" + col + "]");
-        //System.out.println("adding a neighbour, chitons=" + chitons);
+        if (neighbour == this) {
+            throw new IllegalArgumentException("a cave position can't neighbour itself");
+        }
         neighbours.add(neighbour);
         neighbour.neighbours.add(this);
         recalculateBestPath(neighbour);
     }
 
     private void recalculateBestPath(CavePosition newNeighbour) {
-        int pathHereViaNeighbour = newNeighbour.bestPath == Integer.MAX_VALUE ? Integer.MAX_VALUE : newNeighbour.bestPath + chitons;
-        int pathToNeighbourViaHere = bestPath == Integer.MAX_VALUE ? Integer.MAX_VALUE : bestPath + newNeighbour.chitons;
-        if (pathHereViaNeighbour < bestPath) {
-            //System.out.println("found a shorter path here! chitons=" + chitons + ", neighChitons=" + newNeighbour.chitons);
-            bestPath = pathHereViaNeighbour;
-            for (CavePosition neighbour : neighbours) {
-                recalculateBestPath(neighbour);
-            }
-        } else if (pathToNeighbourViaHere < newNeighbour.bestPath) {
-            //System.out.println("found a shorter path to neighbour! chitons=" + chitons + ", neighChitons=" + newNeighbour.chitons);
-            newNeighbour.bestPath = pathToNeighbourViaHere;
-            for (CavePosition neighbour : newNeighbour.neighbours) {
-                newNeighbour.recalculateBestPath(neighbour);
+        recalculateBestPath(this, newNeighbour);
+        recalculateBestPath(newNeighbour, this);
+    }
+
+    private static void recalculateBestPath(CavePosition to, CavePosition via) {
+        int pathToPositionVia = via.bestPathTo == Integer.MAX_VALUE ? Integer.MAX_VALUE : via.bestPathTo + to.chitons;
+        if (pathToPositionVia < to.bestPathTo) {
+            to.bestPathTo = pathToPositionVia;
+            for (CavePosition neighbour : to.neighbours) {
+                to.recalculateBestPath(neighbour);
             }
         }
     }
 
-    public int bestPath() {
-        return this.bestPath;
+    public int bestPathTo() {
+        return this.bestPathTo;
     }
 }

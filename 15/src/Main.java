@@ -11,49 +11,52 @@ public class Main {
         }
     }
 
-    public static int bestPathRisk(BufferedReader lineReader, int caveMultiplier) throws IOException {
-        int[][] cavePositionsArray = Utils.readIntArray(lineReader);
-        cavePositionsArray = scaleCave(cavePositionsArray, caveMultiplier);
-        CavePosition[][] cavePositions = new CavePosition[cavePositionsArray.length][cavePositionsArray[0].length];
-        for (int row = 0; row < cavePositions.length; row++) {
-            for (int col = 0; col < cavePositions[row].length; col++) {
-                int chitons = cavePositionsArray[row][col];
-                CavePosition cavePosition;
-                if (row == 0 && col == 0) {
-                    cavePosition = CavePosition.createStart(chitons, row, col);
-                } else {
-                    cavePosition = new CavePosition(chitons, row, col);
-                }
-                cavePositions[row][col] = cavePosition;
+    public static int bestPathRisk(BufferedReader lineReader, int scale) throws IOException {
+        int[][] caveArray = scaleCave(Utils.readIntArray(lineReader), scale);
+        CavePosition[][] cave = navigateCave(caveArray);
+        return caveExit(cave).bestPathTo();
+    }
+
+    private static CavePosition[][] navigateCave(int[][] chitons) {
+        CavePosition[][] cave = new CavePosition[chitons.length][chitons[0].length];
+        for (int row = 0; row < cave.length; row++) {
+            for (int col = 0; col < cave[row].length; col++) {
+                cave[row][col] = new CavePosition(chitons[row][col], row == 0 && col == 0);
                 if (row > 0) {
-                    //System.out.println("adding vertical neighbour: [r" + (row-1) + ",c" + col + "] to [r" + row + ",c" + col + "]");
-                    cavePosition.addNeighbour(cavePositions[row - 1][col]);
+                    cave[row][col].addNeighbour(cave[row - 1][col]);
                 }
                 if (col > 0) {
-                    //System.out.println("adding horizontal neighbour: [r" + row + ",c" + (col - 1) + "] to [r" + row + ",c" + col + "]");
-                    cavePosition.addNeighbour(cavePositions[row][col - 1]);
+                    cave[row][col].addNeighbour(cave[row][col - 1]);
                 }
             }
         }
-        //printGrid(cavePositions);
-        return cavePositions[cavePositions.length-1][cavePositions[0].length-1].bestPath();
+        return cave;
+    }
+
+    private static CavePosition caveExit(CavePosition[][] cave) {
+        return cave[cave.length - 1][cave[0].length - 1];
     }
 
     private static int[][] scaleCave(int[][] caveOriginal, int scale) {
-        int[][] caveNew = new int[caveOriginal.length * scale][caveOriginal[0].length * scale];
-        for (int row = 0; row < caveNew.length; row++) {
-            int rowScalePos = row / caveOriginal.length;
+        if (scale < 1) {
+            throw new IllegalArgumentException("scale must be positive");
+        }
+        int[][] caveScaled = new int[caveOriginal.length * scale][caveOriginal[0].length * scale];
+        for (int row = 0; row < caveScaled.length; row++) {
+            int rowScale = row / caveOriginal.length;
             int rowOriginal = row % caveOriginal.length;
-            for (int col = 0; col < caveNew[row].length; col++) {
-                int colScalePos = col / caveOriginal[rowOriginal].length;
+            for (int col = 0; col < caveScaled[row].length; col++) {
+                int colScale = col / caveOriginal[rowOriginal].length;
                 int colOriginal = col % caveOriginal[rowOriginal].length;
-                int sumScalePos = rowScalePos + colScalePos;
-                int chitonOriginal = caveOriginal[rowOriginal][colOriginal];
-                int chitonNew = ((chitonOriginal + sumScalePos - 1) % 9) + 1;
-                caveNew[row][col] = chitonNew;
+                int chitonsOriginal = caveOriginal[rowOriginal][colOriginal];
+                caveScaled[row][col] = scaleChitons(chitonsOriginal, rowScale, colScale);
             }
         }
-        return caveNew;
+        return caveScaled;
+    }
+
+    private static int scaleChitons(int chitonsOriginal, int rowScale, int colScale) {
+        return ((chitonsOriginal + rowScale + colScale - 1) % CavePosition.MAX_CHITONS) + 1;
     }
 
     private static void printGrid(CavePosition[][] cavePositions) {
@@ -64,7 +67,7 @@ public class Main {
             }
             for (int col = 0; col < cavePositions[row].length; col++) {
                 buf.append("|");
-                buf.append(String.format("%3d", cavePositions[row][col].bestPath()));
+                buf.append(String.format("%3d", cavePositions[row][col].bestPathTo()));
             }
             buf.append("|");
         }
