@@ -30,9 +30,9 @@ public class CavePosition {
         recalculateBestPath(neighbour);
     }
 
-    private void recalculateBestPath(CavePosition newNeighbour) {
-        recalculateBestPath(this, newNeighbour);
-        recalculateBestPath(newNeighbour, this);
+    private void recalculateBestPath(CavePosition neighbour) {
+        recalculateBestPath(this, neighbour);
+        recalculateBestPath(neighbour, this);
     }
 
     private static void recalculateBestPath(CavePosition to, CavePosition via) {
