@@ -62,17 +62,17 @@ public class Main {
         return ((chitonsOriginal + rowScale + colScale - 1) % CavePosition.MAX_CHITONS) + 1;
     }
 
-    private static void printGrid(CavePosition[][] cavePositions) {
+    public static void printGrid(CavePosition[][] cave) {
         StringBuilder buf = new StringBuilder();
-        for (int row = 0; row < cavePositions.length; row++) {
+        for (int row = 0; row < cave.length; row++) {
             if (row > 0) {
                 buf.append('\n');
             }
-            for (int col = 0; col < cavePositions[row].length; col++) {
-                buf.append("|");
-                buf.append(String.format("%3d", cavePositions[row][col].bestPathTo()));
+            for (int col = 0; col < cave[row].length; col++) {
+                buf.append('|');
+                buf.append(String.format("%3d", cave[row][col].bestPathTo()));
             }
-            buf.append("|");
+            buf.append('|');
         }
         System.out.println(buf.toString());
     }
