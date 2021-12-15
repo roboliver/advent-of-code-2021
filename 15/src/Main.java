@@ -74,6 +74,6 @@ public class Main {
             }
             buf.append('|');
         }
-        System.out.println(buf.toString());
+        System.out.println(buf);
     }
 }

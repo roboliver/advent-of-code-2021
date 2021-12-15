@@ -9,7 +9,7 @@ public class CavePosition {
     public static final int MIN_CHITONS = 1;
     public static final int MAX_CHITONS = 9;
 
-    private List<CavePosition> neighbours = new ArrayList<>();
+    private final List<CavePosition> neighbours = new ArrayList<>();
     private final int chitons;
     private int bestPathTo;
 
