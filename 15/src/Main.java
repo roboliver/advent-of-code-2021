@@ -20,11 +20,11 @@ public class Main {
         return caveExit(cave).bestPathTo();
     }
 
-    private static CavePosition[][] navigateCave(int[][] chitons) {
-        CavePosition[][] cave = new CavePosition[chitons.length][chitons[0].length];
+    private static CavePosition[][] navigateCave(int[][] caveArray) {
+        CavePosition[][] cave = new CavePosition[caveArray.length][caveArray[0].length];
         for (int row = 0; row < cave.length; row++) {
             for (int col = 0; col < cave[row].length; col++) {
-                cave[row][col] = new CavePosition(chitons[row][col], row == 0 && col == 0);
+                cave[row][col] = new CavePosition(caveArray[row][col], row == 0 && col == 0);
                 if (row > 0) {
                     cave[row][col].addNeighbour(cave[row - 1][col]);
                 }

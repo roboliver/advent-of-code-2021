@@ -1,6 +1,10 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a position within the cave. When a neighbour is added, we automatically recalculate the best path to the
+ * new neighbour via this position, and to this position via the new neighbour.
+ */
 public class CavePosition {
     public static final int MIN_CHITONS = 1;
     public static final int MAX_CHITONS = 9;
