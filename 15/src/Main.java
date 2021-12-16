@@ -13,27 +13,27 @@ public class Main {
 
     public static int bestPathRisk(BufferedReader lineReader, int scale) throws IOException {
         long timeBefore = System.currentTimeMillis();
-        int[][] caveArray = scaleCave(Utils.readIntArray(lineReader), scale);
-        CavePosition[][] cave = navigateCave(caveArray);
+        int[][] cave = scaleCave(Utils.readIntArray(lineReader), scale);
+        CavePosition[][] traversedCave = traverseCave(cave);
         long timeAfter = System.currentTimeMillis();
         System.out.println("calculated in " + (timeAfter - timeBefore) + "ms");
-        return caveExit(cave).bestPathTo();
+        return caveExit(traversedCave).bestPathTo();
     }
 
-    private static CavePosition[][] navigateCave(int[][] caveArray) {
-        CavePosition[][] cave = new CavePosition[caveArray.length][caveArray[0].length];
-        for (int row = 0; row < cave.length; row++) {
-            for (int col = 0; col < cave[row].length; col++) {
-                cave[row][col] = new CavePosition(caveArray[row][col], row == 0 && col == 0);
+    private static CavePosition[][] traverseCave(int[][] cave) {
+        CavePosition[][] traversedCave = new CavePosition[cave.length][cave[0].length];
+        for (int row = 0; row < traversedCave.length; row++) {
+            for (int col = 0; col < traversedCave[row].length; col++) {
+                traversedCave[row][col] = new CavePosition(cave[row][col], row == 0 && col == 0);
                 if (row > 0) {
-                    cave[row][col].addNeighbour(cave[row - 1][col]);
+                    traversedCave[row][col].addNeighbour(traversedCave[row - 1][col]);
                 }
                 if (col > 0) {
-                    cave[row][col].addNeighbour(cave[row][col - 1]);
+                    traversedCave[row][col].addNeighbour(traversedCave[row][col - 1]);
                 }
             }
         }
-        return cave;
+        return traversedCave;
     }
 
     private static CavePosition caveExit(CavePosition[][] cave) {
@@ -60,20 +60,5 @@ public class Main {
 
     private static int scaleChitons(int chitonsOriginal, int rowScale, int colScale) {
         return ((chitonsOriginal + rowScale + colScale - 1) % CavePosition.MAX_CHITONS) + 1;
-    }
-
-    public static void printGrid(CavePosition[][] cave) {
-        StringBuilder buf = new StringBuilder();
-        for (int row = 0; row < cave.length; row++) {
-            if (row > 0) {
-                buf.append('\n');
-            }
-            for (int col = 0; col < cave[row].length; col++) {
-                buf.append('|');
-                buf.append(String.format("%3d", cave[row][col].bestPathTo()));
-            }
-            buf.append('|');
-        }
-        System.out.println(buf);
     }
 }

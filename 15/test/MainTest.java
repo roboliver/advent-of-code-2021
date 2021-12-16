@@ -26,4 +26,19 @@ public class MainTest {
     public void testBestPathRiskQuintupledCave() throws IOException {
         assertEquals(315, Main.bestPathRisk(Utils.testLineReader(SAMPLE), 5));
     }
+
+    private static String printCaveTraversed(CavePosition[][] caveTraversed) {
+        StringBuilder buf = new StringBuilder();
+        for (int row = 0; row < caveTraversed.length; row++) {
+            if (row > 0) {
+                buf.append('\n');
+            }
+            for (int col = 0; col < caveTraversed[row].length; col++) {
+                buf.append('|');
+                buf.append(String.format("%3d", caveTraversed[row][col].bestPathTo()));
+            }
+            buf.append('|');
+        }
+        return buf.toString();
+    }
 }
