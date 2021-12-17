@@ -7,11 +7,11 @@ public interface LengthType {
      * Whether the packet has any further sub-packets.
      * @return True if there are more sub-packets, false otherwise.
      */
-    public boolean hasNextSubPacket();
+    boolean hasNextSubPacket();
 
     /**
      * Adds a sub-packet, updating this length tracker accordingly.
      * @param subPacketLength The length of the added sub-packet, in bits.
      */
-    public void addSubPacket(int subPacketLength);
+    void addSubPacket(int subPacketLength);
 }

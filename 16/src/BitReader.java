@@ -9,7 +9,6 @@ public class BitReader {
     private final BufferedReader reader;
     private int hex = -1;
     private int bitsLeftInHex = 0;
-    private final int bitmask = 0x08;
 
     public BitReader(BufferedReader reader) {
         this.reader = Objects.requireNonNull(reader);
@@ -44,7 +43,7 @@ public class BitReader {
     private int readBit() throws IOException {
         ensureHex();
         // the bit we read is always the fourth from the right, so shunt it to the 1 position after getting it
-        int bit = (hex & bitmask) >> 3;
+        int bit = (hex & 0x08) >> 3;
         hex <<= 1;
         bitsLeftInHex--;
         return bit;
