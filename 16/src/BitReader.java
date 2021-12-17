@@ -18,6 +18,9 @@ public class BitReader {
     }
 
     public int read(int bitCount) throws IOException {
+        if (hex == -1 && bitsLeft > 0) {
+            throw new IOException("reached end of bit stream");
+        }
         int bits = 0;
         for (int i = 0; i < bitCount && hasNext(); i++) {
             bits <<= 1;
