@@ -94,6 +94,7 @@ public class Packet {
         //System.out.println("made a packet with id " + id);
         this.version = reader.read(3);
         this.type = Type.parseType(reader.read(3));
+        System.out.println(id + ":" + type);
         int length = 6;
         if (this.type == Type.LITERAL) {
             int[] literalLen = new int[1];

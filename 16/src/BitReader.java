@@ -26,13 +26,6 @@ public class BitReader {
         return bits;
     }
 
-    public void readToNextHex() throws IOException {
-        if (bitsLeft < 4) {
-            bitsLeft = 0;
-            ensureHex();
-        }
-    }
-
     private int readBit() throws IOException {
         ensureHex();
         int bit = (hex & bitmask) >> 3;
