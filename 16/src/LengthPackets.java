@@ -3,7 +3,7 @@ public class LengthPackets implements LengthType {
     private final int id;
 
     public LengthPackets(int packets, int id) {
-        System.out.println("packet " + id + " uses packets length. there are " + packets + " packets");
+        //System.out.println("packet " + id + " uses packets length. there are " + packets + " packets");
         this.packets = packets;
         this.id = id;
     }
@@ -19,6 +19,6 @@ public class LengthPackets implements LengthType {
             throw new IllegalArgumentException("packet " + id + ": out of sub-packets, can't consume any more");
         }
         packets--;
-        System.out.println("packet " + id + ": consumed via packets len, packets is now " + packets);
+        //System.out.println("packet " + id + ": consumed via packets len, packets is now " + packets);
     }
 }
