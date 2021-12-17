@@ -12,54 +12,29 @@ public class Main {
         }
     }
 
-    public static long evaluate(BufferedReader bufReader) throws IOException {
-        BitReader reader = new BitReader(bufReader);
-        ArrayDeque<Packet> stack = new ArrayDeque<>();
-        do {
-            Packet packet = new Packet(reader);
-            while (packet.isDone()) {
-                stack.peek().accept(packet.result());
-                if (stack.peek().isDone()) {
-                    packet = stack.pop();
-                    if (stack.isEmpty()) {
-                        return packet.result().getValue();
-                    }
-                } else {
-                    break;
-                }
-            }
-            if (!packet.isDone()) {
-                stack.push(packet);
-            }
-        } while (reader.hasNext());
-        throw new IllegalStateException("input stream didn't represent a complete packet");
+    public static int versionSum(BufferedReader reader) throws IOException {
+        return parse(reader).getVersionSum();
     }
 
-    public static long versionSum(BufferedReader bufReader) throws IOException {
-        System.out.println("--------------");
+    public static long evaluate(BufferedReader reader) throws IOException {
+        return parse(reader).getValue();
+    }
+
+    private static PacketResult parse(BufferedReader bufReader) throws IOException {
         BitReader reader = new BitReader(bufReader);
         ArrayDeque<Packet> stack = new ArrayDeque<>();
-        stack.push(new Packet(reader));
-        PacketResult result = null;
-        while (reader.hasNext()) {
-            if (stack.isEmpty()) {
-            }
-            Packet packet = new Packet(reader);
-            while (packet.isDone()) {
-                stack.peek().accept(packet.result());
-                if (stack.peek().isDone()) {
-                    packet = stack.pop();
-                    if (stack.isEmpty()) {
-                        return packet.result().getVersionSum();
-                    }
-                } else {
-                    break;
+        while (true) {
+            Packet packetCur = new Packet(reader);
+            while (packetCur.isDone()) {
+                Packet packetPrev = stack.pop();
+                packetPrev.accept(packetCur.result());
+                packetCur = packetPrev;
+                if (stack.isEmpty() && packetCur.isDone()) {
+                    PacketResult result = packetCur.result();
+                    return result;
                 }
             }
-            if (!packet.isDone()) {
-                stack.push(packet);
-            }
+            stack.push(packetCur);
         }
-        return result.getValue();
     }
 }
