@@ -1,9 +1,9 @@
-public class PacketResult {
+public class Result {
     private final int versionSum;
     private final long value;
     private final int length;
 
-    public PacketResult(int versionSum, long value, int length) {
+    public Result(int versionSum, long value, int length) {
         this.versionSum = versionSum;
         this.value = value;
         this.length = length;

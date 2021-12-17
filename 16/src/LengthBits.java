@@ -11,7 +11,7 @@ public class LengthBits implements LengthType {
     }
 
     @Override
-    public void consume(int subPacketLength) {
+    public void addSubPacket(int subPacketLength) {
         if (bits - subPacketLength < 0) {
             throw new IllegalArgumentException("can't consume " + subPacketLength
                     + " bits as there are only " + bits + " bits left");

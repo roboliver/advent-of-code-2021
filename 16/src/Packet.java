@@ -16,9 +16,9 @@ public class Packet {
 
     public Packet(BitReader reader) throws IOException {
         this.version = reader.read(3);
-        int type = reader.read(3);
+        int typeId = reader.read(3);
         int length = 6;
-        if (type == TYPE_LITERAL) {
+        if (typeId == TYPE_LITERAL) {
             this.contents = parseLiteral(reader);
         } else {
             int lengthTypeId = reader.read(1);
@@ -31,7 +31,7 @@ public class Packet {
                 lengthType = new LengthPackets(reader.read(11));
                 length += 11;
             }
-            this.contents = operator(type, lengthType);
+            this.contents = operator(typeId, lengthType);
         }
         this.length = length;
     }
@@ -73,19 +73,19 @@ public class Packet {
 
     }
 
-    public boolean isDone() {
+    public boolean isFullyProcessed() {
         return contents.isDone();
     }
 
-    public void accept(PacketResult subPacket) {
-        contents.accept(subPacket);
+    public void addSubPacket(Result subPacket) {
+        contents.addSubPacket(subPacket);
     }
 
-    public PacketResult result() {
-        if (!isDone()) {
+    public Result result() {
+        if (!isFullyProcessed()) {
             throw new IllegalStateException("not fully processed yet");
         }
-        return new PacketResult(version + contents.getVersionSum(),
+        return new Result(version + contents.getVersionSum(),
                 contents.getValue(), length + contents.getLength());
     }
 }

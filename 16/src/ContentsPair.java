@@ -1,8 +1,8 @@
 import java.util.function.BiPredicate;
 
 public class ContentsPair implements Contents {
-    private PacketResult first = null;
-    private PacketResult second = null;
+    private Result first = null;
+    private Result second = null;
     private final BiPredicate<Long, Long> predicate;
 
     public ContentsPair(BiPredicate<Long, Long> predicate) {
@@ -15,7 +15,7 @@ public class ContentsPair implements Contents {
     }
 
     @Override
-    public void accept(PacketResult subPacket) {
+    public void addSubPacket(Result subPacket) {
         if (isDone()) {
             throw new IllegalStateException("already have both subpackets");
         }

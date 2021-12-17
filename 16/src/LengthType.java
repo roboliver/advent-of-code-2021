@@ -2,5 +2,5 @@ public interface LengthType {
 
     public boolean hasNextSubPacket();
 
-    public void consume(int subPacketLength);
+    public void addSubPacket(int subPacketLength);
 }

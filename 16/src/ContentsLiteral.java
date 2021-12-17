@@ -13,7 +13,7 @@ public class ContentsLiteral implements Contents {
     }
 
     @Override
-    public void accept(PacketResult subPacket) {
+    public void addSubPacket(Result subPacket) {
         throw new IllegalArgumentException("literal packets can't have subpackets");
     }
 

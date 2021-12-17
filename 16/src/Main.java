@@ -20,18 +20,17 @@ public class Main {
         return parse(reader).getValue();
     }
 
-    private static PacketResult parse(BufferedReader bufReader) throws IOException {
+    private static Result parse(BufferedReader bufReader) throws IOException {
         BitReader reader = new BitReader(bufReader);
         ArrayDeque<Packet> stack = new ArrayDeque<>();
         while (true) {
             Packet packetCur = new Packet(reader);
-            while (packetCur.isDone()) {
+            while (packetCur.isFullyProcessed()) {
                 Packet packetPrev = stack.pop();
-                packetPrev.accept(packetCur.result());
+                packetPrev.addSubPacket(packetCur.result());
                 packetCur = packetPrev;
-                if (stack.isEmpty() && packetCur.isDone()) {
-                    PacketResult result = packetCur.result();
-                    return result;
+                if (stack.isEmpty() && packetCur.isFullyProcessed()) {
+                    return packetCur.result();
                 }
             }
             stack.push(packetCur);

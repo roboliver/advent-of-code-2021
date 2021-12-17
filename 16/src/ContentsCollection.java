@@ -19,8 +19,8 @@ public class ContentsCollection implements Contents {
     }
 
     @Override
-    public void accept(PacketResult subPacket) {
-        lengthType.consume(subPacket.getLength());
+    public void addSubPacket(Result subPacket) {
+        lengthType.addSubPacket(subPacket.getLength());
         value = operator.apply(value, subPacket.getValue());
         versionSum += subPacket.getVersionSum();
         length += subPacket.getLength();

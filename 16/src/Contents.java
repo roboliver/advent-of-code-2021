@@ -1,7 +1,7 @@
 public interface Contents {
     public boolean isDone();
 
-    public void accept(PacketResult subPacket);
+    public void addSubPacket(Result subPacket);
 
     public long getValue();
 

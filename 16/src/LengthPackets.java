@@ -11,7 +11,7 @@ public class LengthPackets implements LengthType {
     }
 
     @Override
-    public void consume(int subPacketLength) {
+    public void addSubPacket(int subPacketLength) {
         if (packets == 0) {
             throw new IllegalArgumentException("out of sub-packets, can't consume any more");
         }
