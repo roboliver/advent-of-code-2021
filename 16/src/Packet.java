@@ -1,5 +1,13 @@
 import java.io.IOException;
 
+/**
+ * A data packet. Packets are constructed by providing the bit stream they are read from, and they will read the bits
+ * necessary to build themselves. Operator packets will stop reading once they have read their length, and will then
+ * wait for sub-packets to be added to them once read.
+ *
+ * When a packet has been fully read, it can be collapsed into a {@code Result} object, containing the useful
+ * information from it, after which point the original, expensive {@code Packet} object can be thrown away.
+ */
 public class Packet {
     private static final int TYPE_SUM = 0;
     private static final int TYPE_PRODUCT = 1;
@@ -10,30 +18,30 @@ public class Packet {
     private static final int TYPE_LESS_THAN = 6;
     private static final int TYPE_EQUAL_TO = 7;
 
-    private final int length;
+    private final int metadataLength;
     private final Contents contents;
     private final int version;
 
     public Packet(BitReader reader) throws IOException {
         this.version = reader.read(3);
         int typeId = reader.read(3);
-        int length = 6;
+        int metadataLength = 6;
         if (typeId == TYPE_LITERAL) {
             this.contents = parseLiteral(reader);
         } else {
             int lengthTypeId = reader.read(1);
-            length += 1;
+            metadataLength += 1;
             LengthType lengthType;
             if (lengthTypeId == 0) {
                 lengthType = new LengthBits(reader.read(15));
-                length += 15;
+                metadataLength += 15;
             } else {
                 lengthType = new LengthPackets(reader.read(11));
-                length += 11;
+                metadataLength += 11;
             }
             this.contents = operator(typeId, lengthType);
         }
-        this.length = length;
+        this.metadataLength = metadataLength;
     }
 
     private ContentsLiteral parseLiteral(BitReader reader) throws IOException {
@@ -73,19 +81,32 @@ public class Packet {
 
     }
 
+    /**
+     * Whether the packet has been fully processed (i.e. its contents is full) and can now be collapsed into a
+     * {@code Result} object.
+     * @return True if the packet has been fully processed, false otherwise.
+     */
     public boolean isFullyProcessed() {
-        return contents.isDone();
+        return contents.isFullyProcessed();
     }
 
+    /**
+     * Adds a sub-packet to this packet.
+     * @param subPacket The sub-packet to add.
+     */
     public void addSubPacket(Result subPacket) {
         contents.addSubPacket(subPacket);
     }
 
+    /**
+     * Returns the result of the packet, which contains the useful information from it after it's been fully processed.
+     * @return The packet's result.
+     */
     public Result result() {
         if (!isFullyProcessed()) {
             throw new IllegalStateException("not fully processed yet");
         }
         return new Result(version + contents.getVersionSum(),
-                contents.getValue(), length + contents.getLength());
+                contents.getValue(), metadataLength + contents.getLength());
     }
 }

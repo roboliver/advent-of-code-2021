@@ -2,11 +2,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * Wraps a Reader containing a stream of hex characters and enables them to be read as bits.
+ */
 public class BitReader {
     private final BufferedReader reader;
-    private int bitsLeft = 0;
     private int hex = -1;
-    private final int bitmask = 8;
+    private int bitsLeftInHex = 0;
+    private final int bitmask = 0x08;
 
     public BitReader(BufferedReader reader) {
         this.reader = Objects.requireNonNull(reader);
@@ -17,8 +20,17 @@ public class BitReader {
         return hex != -1;
     }
 
+    /**
+     * Reads the specified number of bits.
+     * @param bitCount The number of bits to read
+     * @return The bits, in the form of an integer
+     * @throws IOException If the end of the stream had already been reached prior to this read
+     */
     public int read(int bitCount) throws IOException {
-        if (hex == -1 && bitsLeft > 0) {
+        if (bitCount < 1 || bitCount > 16) {
+            System.out.println("bits read must fit into an integer, i.e. must be between 1 and 16");
+        }
+        if (!hasNext()) {
             throw new IOException("reached end of bit stream");
         }
         int bits = 0;
@@ -31,22 +43,24 @@ public class BitReader {
 
     private int readBit() throws IOException {
         ensureHex();
+        // the bit we read is always the fourth from the right, so shunt it to the 1 position after getting it
         int bit = (hex & bitmask) >> 3;
         hex <<= 1;
-        bitsLeft--;
+        bitsLeftInHex--;
         return bit;
     }
 
     private void ensureHex() throws IOException {
-        if (bitsLeft == 0) {
-            int nextInt = reader.read();
-            String nextStr = String.valueOf((char) nextInt);
+        if (bitsLeftInHex == 0) {
+            char hexChar = (char) reader.read();
+            String hexStr = String.valueOf(hexChar);
             try {
-                hex = Integer.parseInt(nextStr, 16);
+                hex = Integer.parseInt(hexStr, 16);
             } catch (NumberFormatException e) {
+                // EOF, or an invalid character, which we treat as EOF
                 hex = -1;
             }
-            bitsLeft = 4;
+            bitsLeftInHex = 4;
         }
     }
 }

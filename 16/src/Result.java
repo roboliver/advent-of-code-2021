@@ -1,3 +1,6 @@
+/**
+ * The result of a packet that has been fully processed.
+ */
 public class Result {
     private final int versionSum;
     private final long value;

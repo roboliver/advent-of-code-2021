@@ -1,5 +1,9 @@
 import java.util.function.BinaryOperator;
 
+/**
+ * Packet contents that contain a variable number of sub-packets, where the result value comes from collating the value
+ * of all of them somehow.
+ */
 public class ContentsCollection implements Contents {
     private long value;
     private final BinaryOperator<Long> operator;
@@ -7,17 +11,23 @@ public class ContentsCollection implements Contents {
     private final LengthType lengthType;
     private int length = 0;
 
-    public ContentsCollection(long init, BinaryOperator<Long> operator, LengthType lengthType) {
-        this.value = init;
+    public ContentsCollection(long valueInit, BinaryOperator<Long> operator, LengthType lengthType) {
+        this.value = valueInit;
         this.operator = operator;
         this.lengthType = lengthType;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean isDone() {
+    public boolean isFullyProcessed() {
         return !lengthType.hasNextSubPacket();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void addSubPacket(Result subPacket) {
         lengthType.addSubPacket(subPacket.getLength());
@@ -26,26 +36,35 @@ public class ContentsCollection implements Contents {
         length += subPacket.getLength();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getValue() {
-        assertDone();
+        assertFullyProcessed();
         return value;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getVersionSum() {
-        assertDone();
+        assertFullyProcessed();
         return versionSum;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getLength() {
-        assertDone();
+        assertFullyProcessed();
         return length;
     }
 
-    private void assertDone() {
-        if (!isDone()) {
+    private void assertFullyProcessed() {
+        if (!isFullyProcessed()) {
             throw new IllegalStateException("not fully processed yet");
         }
     }
