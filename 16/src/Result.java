@@ -3,24 +3,24 @@
  */
 public class Result {
     private final int versionSum;
-    private final long value;
     private final int length;
+    private final long value;
 
-    public Result(int versionSum, long value, int length) {
+    public Result(int versionSum, int length, long value) {
         this.versionSum = versionSum;
-        this.value = value;
         this.length = length;
+        this.value = value;
     }
 
     public int getVersionSum() {
         return versionSum;
     }
 
-    public long getValue() {
-        return value;
-    }
-
     public int getLength() {
         return length;
+    }
+
+    public long getValue() {
+        return value;
     }
 }

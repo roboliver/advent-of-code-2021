@@ -5,16 +5,16 @@ import java.util.function.BinaryOperator;
  * of all of them somehow.
  */
 public class ContentsCollection implements Contents {
-    private long value;
-    private final BinaryOperator<Long> operator;
-    private int versionSum = 0;
     private final LengthType lengthType;
     private int length = 0;
+    private int versionSum = 0;
+    private long value;
+    private final BinaryOperator<Long> operator;
 
-    public ContentsCollection(long valueInit, BinaryOperator<Long> operator, LengthType lengthType) {
+    public ContentsCollection(LengthType lengthType, long valueInit, BinaryOperator<Long> operator) {
+        this.lengthType = lengthType;
         this.value = valueInit;
         this.operator = operator;
-        this.lengthType = lengthType;
     }
 
     /**
@@ -40,15 +40,6 @@ public class ContentsCollection implements Contents {
      * {@inheritDoc}
      */
     @Override
-    public long getValue() {
-        assertFullyProcessed();
-        return value;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public int getVersionSum() {
         assertFullyProcessed();
         return versionSum;
@@ -61,6 +52,15 @@ public class ContentsCollection implements Contents {
     public int getLength() {
         assertFullyProcessed();
         return length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getValue() {
+        assertFullyProcessed();
+        return value;
     }
 
     private void assertFullyProcessed() {

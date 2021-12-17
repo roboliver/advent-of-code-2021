@@ -18,9 +18,9 @@ public class Packet {
     private static final int TYPE_LESS_THAN = 6;
     private static final int TYPE_EQUAL_TO = 7;
 
+    private final int version;
     private final int metadataLength;
     private final Contents contents;
-    private final int version;
 
     public Packet(BitReader reader) throws IOException {
         this.version = reader.read(3);
@@ -45,30 +45,30 @@ public class Packet {
     }
 
     private ContentsLiteral parseLiteral(BitReader reader) throws IOException {
-        long literal = 0;
         int length = 0;
+        long literal = 0;
         boolean hasNext = true;
         while (hasNext) {
             int read = reader.read(5);
-            hasNext = (read & 0x10) == 0x10;
+            length += 5;
             int nibble = read & 0xF;
             literal <<= 4;
             literal |= nibble;
-            length += 5;
+            hasNext = (read & 0x10) == 0x10;
         }
-        return new ContentsLiteral(literal, length);
+        return new ContentsLiteral(length, literal);
     }
 
     private static Contents operator(int typeId, LengthType lengthType) {
         switch (typeId) {
             case TYPE_SUM:
-                return new ContentsCollection(0, Long::sum, lengthType);
+                return new ContentsCollection(lengthType, 0, Long::sum);
             case TYPE_PRODUCT:
-                return new ContentsCollection(1, (a, b) -> a * b, lengthType);
+                return new ContentsCollection(lengthType, 1, (a, b) -> a * b);
             case TYPE_MINIMUM:
-                return new ContentsCollection(Long.MAX_VALUE, Long::min, lengthType);
+                return new ContentsCollection(lengthType, Long.MAX_VALUE, Long::min);
             case TYPE_MAXIMUM:
-                return new ContentsCollection(Long.MIN_VALUE, Long::max, lengthType);
+                return new ContentsCollection(lengthType, Long.MIN_VALUE, Long::max);
             case TYPE_GREATER_THAN:
                 return new ContentsPair((a, b) -> a > b);
             case TYPE_LESS_THAN:
@@ -107,6 +107,6 @@ public class Packet {
             throw new IllegalStateException("not fully processed yet");
         }
         return new Result(version + contents.getVersionSum(),
-                contents.getValue(), metadataLength + contents.getLength());
+                metadataLength + contents.getLength(), contents.getValue());
     }
 }

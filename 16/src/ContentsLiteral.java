@@ -2,12 +2,12 @@
  * Packet contents that directly contain a literal value.
  */
 public class ContentsLiteral implements Contents {
-    private final long literal;
     private final int length;
+    private final long literal;
 
-    public ContentsLiteral(long literal, int length) {
-        this.literal = literal;
+    public ContentsLiteral(int length, long literal) {
         this.length = length;
+        this.literal = literal;
     }
 
     /**
@@ -30,14 +30,6 @@ public class ContentsLiteral implements Contents {
      * {@inheritDoc}
      */
     @Override
-    public long getValue() {
-        return literal;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public int getVersionSum() {
         return 0;
     }
@@ -48,5 +40,13 @@ public class ContentsLiteral implements Contents {
     @Override
     public int getLength() {
         return length;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getValue() {
+        return literal;
     }
 }

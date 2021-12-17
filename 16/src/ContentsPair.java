@@ -40,15 +40,6 @@ public class ContentsPair implements Contents {
      * {@inheritDoc}
      */
     @Override
-    public long getValue() {
-        assertFullyProcessed();
-        return predicate.test(first.getValue(), second.getValue()) ? 1 : 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public int getVersionSum() {
         assertFullyProcessed();
         return first.getVersionSum() + second.getVersionSum();
@@ -61,6 +52,15 @@ public class ContentsPair implements Contents {
     public int getLength() {
         assertFullyProcessed();
         return first.getLength() + second.getLength();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public long getValue() {
+        assertFullyProcessed();
+        return predicate.test(first.getValue(), second.getValue()) ? 1 : 0;
     }
 
     private void assertFullyProcessed() {
