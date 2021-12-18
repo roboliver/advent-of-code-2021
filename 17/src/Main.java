@@ -44,18 +44,32 @@ public class Main {
         // drop frames.
         int startFrame = reverseTriangle(-1 * target.getYMax());
         int startYLandsAt = (startFrame * (startFrame + 1)) / 2;
-        Map<Integer, List<Integer>> yVelsToHitFrames = new HashMap<>();
+        Map<Integer, List<Integer>> yVelsToHitFrames = new TreeMap<>();
         for (int yVelocityCur = 1; yVelocityCur <= -1 * target.getYMin(); yVelocityCur++) {
             System.out.println("velocity: " + yVelocityCur + ", starting in frame " + startFrame + ", landing at y=" + startYLandsAt);
-            boolean gotAFrameInTarget = false;
+            boolean pastStartOfTarget = false;
+            boolean pastEndOfTarget = false;
             int currentFrame = startFrame;
             int currentLandsAt = startYLandsAt;
             int adding = yVelocityCur  + currentFrame;
-            while (!gotAFrameInTarget) {
-                //System.out.println("currently landing at " + currentLandsAt + ", target is " + (target.getYMax() * -1));
+            while (!pastStartOfTarget) {
+                System.out.println("currently landing at " + currentLandsAt + ", target is " + (target.getYMax() * -1));
                 if (currentLandsAt >= target.getYMax() * -1) {
+                    pastStartOfTarget = true;
                     System.out.println("got a hit. vel: " + yVelocityCur +", frame: " + currentFrame + ", lands at: " + currentLandsAt);
-                    gotAFrameInTarget = true;
+                    if (currentLandsAt >= target.getYMin() * -1) {
+                        pastEndOfTarget = true;
+                    } else {
+                        int negativeVelocity = -1 * yVelocityCur;
+                        int positiveVelocity = yVelocityCur - 1;
+                        int negativeFrameHit = currentFrame;
+                        int flightTime = yVelocityCur * 2 + 1;
+                        int positiveFrameHit = negativeFrameHit + flightTime;
+                        List<Integer> negatives = yVelsToHitFrames.computeIfAbsent(negativeVelocity, k -> new ArrayList<>());
+                        negatives.add(negativeFrameHit);
+                        List<Integer> positives = yVelsToHitFrames.computeIfAbsent(positiveVelocity, k -> new ArrayList<>());
+                        positives.add(positiveFrameHit);
+                    }
                 } else {
                     currentLandsAt += adding;
                     currentFrame++;
@@ -70,6 +84,10 @@ public class Main {
             }
             startFrame--;
             startYLandsAt -= yVelocityCur;
+        }
+        //System.out.println("y hits:");
+        for (Map.Entry<Integer, List<Integer>> entry : yVelsToHitFrames.entrySet()) {
+            System.out.println(entry.getKey() + ": " + Arrays.toString(entry.getValue().toArray()));
         }
     }
 
