@@ -25,15 +25,16 @@ public class Main {
         ArrayDeque<Packet> stack = new ArrayDeque<>();
         while (true) {
             Packet packetCur = new Packet(reader);
-            while (packetCur.isFullyProcessed()) {
+            while (packetCur.isFullyProcessed() && !stack.isEmpty()) {
                 Packet packetPrev = stack.pop();
                 packetPrev.addSubPacket(packetCur.result());
                 packetCur = packetPrev;
-                if (stack.isEmpty() && packetCur.isFullyProcessed()) {
-                    return packetCur.result();
-                }
             }
-            stack.push(packetCur);
+            if (packetCur.isFullyProcessed()) {
+                return packetCur.result();
+            } else {
+                stack.push(packetCur);
+            }
         }
     }
 }
