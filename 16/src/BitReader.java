@@ -1,16 +1,16 @@
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.util.Objects;
 
 /**
  * Wraps a Reader containing a stream of hex characters and enables them to be read as bits.
  */
 public class BitReader {
-    private final BufferedReader reader;
+    private final Reader reader;
     private int hex = -1;
     private int bitsLeftInHex = 0;
 
-    public BitReader(BufferedReader reader) {
+    public BitReader(Reader reader) {
         this.reader = Objects.requireNonNull(reader);
     }
 

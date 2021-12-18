@@ -22,21 +22,21 @@ public class Packet {
     private final int metadataLength;
     private final Contents contents;
 
-    public Packet(BitReader reader) throws IOException {
-        this.version = reader.read(3);
-        int typeId = reader.read(3);
+    public Packet(BitReader bitReader) throws IOException {
+        this.version = bitReader.read(3);
+        int typeId = bitReader.read(3);
         int metadataLength = 6;
         if (typeId == TYPE_LITERAL) {
-            this.contents = parseLiteral(reader);
+            this.contents = parseLiteral(bitReader);
         } else {
-            int lengthTypeId = reader.read(1);
+            int lengthTypeId = bitReader.read(1);
             metadataLength += 1;
             LengthType lengthType;
             if (lengthTypeId == 0) {
-                lengthType = new LengthBits(reader.read(15));
+                lengthType = new LengthBits(bitReader.read(15));
                 metadataLength += 15;
             } else {
-                lengthType = new LengthPackets(reader.read(11));
+                lengthType = new LengthPackets(bitReader.read(11));
                 metadataLength += 11;
             }
             this.contents = operator(typeId, lengthType);
@@ -44,17 +44,17 @@ public class Packet {
         this.metadataLength = metadataLength;
     }
 
-    private ContentsLiteral parseLiteral(BitReader reader) throws IOException {
+    private ContentsLiteral parseLiteral(BitReader bitReader) throws IOException {
         int length = 0;
         long literal = 0;
         boolean hasNext = true;
         while (hasNext) {
-            int read = reader.read(5);
+            int bits = bitReader.read(5);
             length += 5;
-            int nibble = read & 0xF;
+            int nibble = bits & 0xF;
             literal <<= 4;
             literal |= nibble;
-            hasNext = (read & 0x10) == 0x10;
+            hasNext = (bits & 0x10) == 0x10;
         }
         return new ContentsLiteral(length, literal);
     }
@@ -82,7 +82,7 @@ public class Packet {
     }
 
     /**
-     * Whether the packet has been fully processed (i.e. its contents is full) and can now be collapsed into a
+     * Whether the packet has been fully processed (i.e. its contents are full) and can now be collapsed into a
      * {@code Result} object.
      * @return True if the packet has been fully processed, false otherwise.
      */
@@ -103,9 +103,6 @@ public class Packet {
      * @return The packet's result.
      */
     public Result result() {
-        if (!isFullyProcessed()) {
-            throw new IllegalStateException("not fully processed yet");
-        }
         return new Result(version + contents.getVersionSum(),
                 metadataLength + contents.getLength(), contents.getValue());
     }

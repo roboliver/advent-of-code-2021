@@ -20,11 +20,11 @@ public class Main {
         return parse(reader).getValue();
     }
 
-    private static Result parse(BufferedReader bufReader) throws IOException {
-        BitReader reader = new BitReader(bufReader);
+    private static Result parse(BufferedReader reader) throws IOException {
+        BitReader bitReader = new BitReader(reader);
         ArrayDeque<Packet> stack = new ArrayDeque<>();
         while (true) {
-            Packet packetCur = new Packet(reader);
+            Packet packetCur = new Packet(bitReader);
             while (packetCur.isFullyProcessed() && !stack.isEmpty()) {
                 Packet packetPrev = stack.pop();
                 packetPrev.addSubPacket(packetCur.result());
