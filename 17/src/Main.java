@@ -52,7 +52,7 @@ public class Main {
             int currentFrame = startFrame;
             int currentLandsAt = startYLandsAt;
             int adding = yVelocityCur  + currentFrame;
-            while (!pastStartOfTarget) {
+            while (!pastEndOfTarget) {
                 System.out.println("currently landing at " + currentLandsAt + ", target is " + (target.getYMax() * -1));
                 if (currentLandsAt >= target.getYMax() * -1) {
                     pastStartOfTarget = true;
@@ -71,16 +71,19 @@ public class Main {
                         positives.add(positiveFrameHit);
                     }
                 } else {
-                    currentLandsAt += adding;
-                    currentFrame++;
-                    adding++;
-                    if (adding - yVelocityCur > 1 || currentFrame == 1) {
+                    int tempCurrentLandsAt = currentLandsAt + adding;
+                    int tempCurrentFrame = currentFrame + 1;
+                    int tempAdding = adding + 1;
+                    if (tempAdding - yVelocityCur > 1 || tempCurrentFrame == 1) {
                         //System.out.
                         // not in the zeroth or first frame, so make some updates...
                         startFrame++;
-                        startYLandsAt = currentLandsAt;
+                        startYLandsAt = tempCurrentLandsAt;
                     }
                 }
+                currentLandsAt += adding;
+                currentFrame++;
+                adding++;
             }
             startFrame--;
             startYLandsAt -= yVelocityCur;
