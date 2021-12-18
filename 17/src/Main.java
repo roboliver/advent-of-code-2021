@@ -14,7 +14,8 @@ public class Main {
 
     public static int highestArc(BufferedReader reader) throws IOException {
         Target target = target(reader);
-        findValidXes(target);
+        //findValidXs(target);
+        findValidYs(target);
         return 0;
     }
 
@@ -22,7 +23,61 @@ public class Main {
         return 0;
     }
 
-    private static void findValidXes(Target target) {
+    private static void findValidYs(Target target) {
+        System.out.println("target is: " + target.getYMin() + ".." + target.getYMax());
+        // The maximum y is whatever positive value causes the probe to immediately pass into the window at as low a
+        // point as possible upon dropping back to zero. The minimum y is whatever value causes the probe to pass
+        // through the bottom of the target on the first frame. Between these, inclusive, will be all the valid Y
+        // values.
+        //
+        // for positive Y values, we will first of all calculate how many frames until the probe is at zero and will
+        // start to drop from the next frame -- this is 2Y + 1. hold onto this.
+        //
+        // then, we need to figure out -- at this initial velocity, how many frames until it is at or lower than the
+        // target's minimum Y position?
+        //
+        // from here, we will keep deducting "a frame's worth of drop" until the probe is above the frame.
+        //
+        // for negative Y values, we will do the same as the latter part of the above. in fact -- we can just save the
+        // above answers both with and without the flight frames! (i.e., multiplying the Y by -1 and then deducting 1
+        // from it. so e.g., if 9 is a valid value, and takes flight+drop frames, then -10 is also valid, and it takes
+        // drop frames.
+        int startFrame = reverseTriangle(-1 * target.getYMax());
+        int startYLandsAt = (startFrame * (startFrame + 1)) / 2;
+        Map<Integer, List<Integer>> yVelsToHitFrames = new HashMap<>();
+        for (int yVelocityCur = 1; yVelocityCur <= -1 * target.getYMin(); yVelocityCur++) {
+            System.out.println("velocity: " + yVelocityCur + ", starting in frame " + startFrame + ", landing at y=" + startYLandsAt);
+            boolean gotAFrameInTarget = false;
+            int currentFrame = startFrame;
+            int currentLandsAt = startYLandsAt;
+            int adding = yVelocityCur  + currentFrame;
+            while (!gotAFrameInTarget) {
+                //System.out.println("currently landing at " + currentLandsAt + ", target is " + (target.getYMax() * -1));
+                if (currentLandsAt >= target.getYMax() * -1) {
+                    System.out.println("got a hit. vel: " + yVelocityCur +", frame: " + currentFrame + ", lands at: " + currentLandsAt);
+                    gotAFrameInTarget = true;
+                } else {
+                    currentLandsAt += adding;
+                    currentFrame++;
+                    adding++;
+                    if (adding - yVelocityCur > 1 || currentFrame == 1) {
+                        //System.out.
+                        // not in the zeroth or first frame, so make some updates...
+                        startFrame++;
+                        startYLandsAt = currentLandsAt;
+                    }
+                }
+            }
+            startFrame--;
+            startYLandsAt -= yVelocityCur;
+        }
+    }
+
+    private static int reverseTriangle(int destination) {
+        return (int) (Math.sqrt(1 + (destination * 8)) - 1) / 2; // reverse triangle formula
+    }
+
+    private static void findValidXs(Target target) {
         System.out.println("target is: " + target.getXMin() + ".." + target.getXMax());
         // The minimum x is whatever value causes the probe to stop moving inside the target's x window, as close to the
         // start as possible. The maximum x is whatever value causes the probe to pass through the end of the target on
@@ -35,7 +90,7 @@ public class Main {
         // set of x velocities that cause the probe to stop within the target (which will be after the velocity's number
         // of frames)
         Set<Integer> xVelsThatStopInTarget = new HashSet<>();
-        int xVelocityCur = (int) Math.sqrt((target.getXMin() * 2) - 1);
+        int xVelocityCur = reverseTriangle(target.getXMin());
         int minDeductions = 0;
         while (xVelocityCur <= target.getXMax()) {
             int xLandsAt = ((xVelocityCur * (xVelocityCur + 1)) / 2) - ((minDeductions * (minDeductions + 1) / 2));
@@ -58,8 +113,6 @@ public class Main {
                 }
                 deductions++;
                 xLandsAt -= deductions;
-                //            xVelocityCur--;
-                //            xLandsAt = (xVelocityCur * (xVelocityCur + 1)) / 2;
             }
             System.out.println("moving:");
             for (Map.Entry<Integer, List<Integer>> entry : xVelsToHitFramesMoving.entrySet()) {
