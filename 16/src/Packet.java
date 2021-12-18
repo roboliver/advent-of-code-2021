@@ -44,7 +44,7 @@ public class Packet {
         this.metadataLength = metadataLength;
     }
 
-    private ContentsLiteral parseLiteral(BitReader bitReader) throws IOException {
+    private static ContentsLiteral parseLiteral(BitReader bitReader) throws IOException {
         int length = 0;
         long literal = 0;
         boolean hasNext = true;
