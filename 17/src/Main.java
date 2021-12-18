@@ -56,29 +56,28 @@ public class Main {
                 System.out.println("currently landing at " + currentLandsAt + ", target is " + (target.getYMax() * -1));
                 if (currentLandsAt >= target.getYMax() * -1) {
                     pastStartOfTarget = true;
-                    System.out.println("got a hit. vel: " + yVelocityCur +", frame: " + currentFrame + ", lands at: " + currentLandsAt);
                     if (currentLandsAt >= target.getYMin() * -1) {
                         pastEndOfTarget = true;
                     } else {
+                        System.out.println("got a hit. vel: " + yVelocityCur +", frame: " + currentFrame + ", lands at: " + currentLandsAt);
                         int negativeVelocity = -1 * yVelocityCur;
                         int positiveVelocity = yVelocityCur - 1;
                         int negativeFrameHit = currentFrame;
-                        int flightTime = yVelocityCur * 2 + 1;
+                        int flightTime = positiveVelocity * 2 + 1;
                         int positiveFrameHit = negativeFrameHit + flightTime;
+                        System.out.println("if fired upwards at velocity " + positiveVelocity +", this will land at y=" + currentLandsAt + " in frame " + positiveFrameHit);
+                        System.out.println("if fired downwards at velocity " + negativeVelocity +", this will land at y=" + currentLandsAt + " in frame " + negativeFrameHit);
                         List<Integer> negatives = yVelsToHitFrames.computeIfAbsent(negativeVelocity, k -> new ArrayList<>());
                         negatives.add(negativeFrameHit);
                         List<Integer> positives = yVelsToHitFrames.computeIfAbsent(positiveVelocity, k -> new ArrayList<>());
                         positives.add(positiveFrameHit);
                     }
                 } else {
-                    int tempCurrentLandsAt = currentLandsAt + adding;
-                    int tempCurrentFrame = currentFrame + 1;
-                    int tempAdding = adding + 1;
-                    if (tempAdding - yVelocityCur > 1 || tempCurrentFrame == 1) {
+                    if (adding - yVelocityCur > 0 || currentFrame == 0) {
                         //System.out.
                         // not in the zeroth or first frame, so make some updates...
                         startFrame++;
-                        startYLandsAt = tempCurrentLandsAt;
+                        startYLandsAt = currentLandsAt + adding;
                     }
                 }
                 currentLandsAt += adding;
