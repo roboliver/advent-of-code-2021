@@ -107,11 +107,15 @@ public class Main {
             boolean pastTarget = false;
             int frame = initFrame;
             int landsAt = initLandsAt;
+            int framesCheckedBeforePassedTargetStart = 0;
             while (!pastTarget) {
+                System.out.println("velocity is " + velocity);
                 // we haven't passed the target entirely yet
                 if (landsAt <= target.getYMax()) {
+                    System.out.println("passed the start");
                     // we are below the start of the target
                     if (target.isYOnTarget(landsAt)) {
+                        System.out.println("on target");
                         // we are within the target
                         List<Integer> negHitFrames = hits.computeIfAbsent(velocity, k -> new ArrayList<>());
                         negHitFrames.add(frame);
@@ -120,16 +124,24 @@ public class Main {
                         List<Integer> positiveHitFrames = hits.computeIfAbsent(posVelocity, k -> new ArrayList<>());
                         positiveHitFrames.add(frame + flightFrames);
                     } else {
+                        System.out.println("and passed the end.");
                         pastTarget = true;
                     }
+                } else {
+                    if (framesCheckedBeforePassedTargetStart > 0) {
+                        initFrame = frame;
+                        initLandsAt = landsAt;
+                    }
+                    framesCheckedBeforePassedTargetStart++;
                 }
-                // still searching for the end. so...
-                landsAt -= (frame - velocity);
+                // update where we're going to land -- the frame indicates how much bigger than the initial velocity
+                // this increment is going to be
+                landsAt -= (frame + (velocity * -1));
                 frame++;
             }
-            // we'll start one frame earlier each loop, and the position this will have us start at is determined by
-            // removing the current velocity from the previous calculated position, since we will skip this part of the
-            // triangle number.
+            // we'll start one frame earlier each loop (barring any additional adjustment we made), and the position
+            // this will have us start at is determined by removing the current velocity from the previous calculated
+            // position, since we will skip this element of the triangle number.
             if (initFrame > 0) {
                 initFrame--;
                 initLandsAt -= velocity;
