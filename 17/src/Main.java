@@ -79,76 +79,6 @@ public class Main {
         return reversed;
     }
 
-    private static void findValidYs(Target target, Map<Integer, List<Integer>> hits) {
-        // The maximum y is whatever positive value causes the probe to immediately pass into the window at as low a
-        // point as possible upon dropping back to zero. The minimum y is whatever value causes the probe to pass
-        // through the bottom of the target on the first frame. Between these, inclusive, will be all the valid Y
-        // values.
-        //
-        // for positive Y values, we will first of all calculate how many frames until the probe is at zero and will
-        // start to drop from the next frame -- this is 2Y + 1. hold onto this.
-        //
-        // then, we need to figure out -- at this initial velocity, how many frames until it is at or lower than the
-        // target's minimum Y position?
-        //
-        // from here, we will keep deducting "a frame's worth of drop" until the probe is above the frame.
-        //
-        // for negative Y values, we will do the same as the latter part of the above. in fact -- we can just save the
-        // above answers both with and without the flight frames! (i.e., multiplying the Y by -1 and then deducting 1
-        // from it. so e.g., if 9 is a valid value, and takes flight+drop frames, then -10 is also valid, and it takes
-        // drop frames.
-
-
-        // the frame at which we will start at in each iteration -- wherever we are just above (or in) the target.
-        int initFrame = inverseTriangleNumber(-1 * target.getYMax());
-        // the position this starting frame will put us at.
-        int initLandsAt = triangleNumber(initFrame) * -1;
-        for (int velocity = -1; velocity >= target.getYMin(); velocity--) {
-            boolean pastTarget = false;
-            int frame = initFrame;
-            int landsAt = initLandsAt;
-            int framesCheckedBeforePassedTargetStart = 0;
-            while (!pastTarget) {
-                System.out.println("velocity is " + velocity);
-                // we haven't passed the target entirely yet
-                if (landsAt <= target.getYMax()) {
-                    System.out.println("passed the start");
-                    // we are below the start of the target
-                    if (target.isYOnTarget(landsAt)) {
-                        System.out.println("on target");
-                        // we are within the target
-                        List<Integer> negHitFrames = hits.computeIfAbsent(velocity, k -> new ArrayList<>());
-                        negHitFrames.add(frame);
-                        int posVelocity = (velocity * -1) - 1;
-                        int flightFrames = posVelocity * 2 + 1;
-                        List<Integer> positiveHitFrames = hits.computeIfAbsent(posVelocity, k -> new ArrayList<>());
-                        positiveHitFrames.add(frame + flightFrames);
-                    } else {
-                        System.out.println("and passed the end.");
-                        pastTarget = true;
-                    }
-                } else {
-                    if (framesCheckedBeforePassedTargetStart > 0) {
-                        initFrame = frame;
-                        initLandsAt = landsAt;
-                    }
-                    framesCheckedBeforePassedTargetStart++;
-                }
-                // update where we're going to land -- the frame indicates how much bigger than the initial velocity
-                // this increment is going to be
-                landsAt -= (frame + (velocity * -1));
-                frame++;
-            }
-            // we'll start one frame earlier each loop (barring any additional adjustment we made), and the position
-            // this will have us start at is determined by removing the current velocity from the previous calculated
-            // position, since we will skip this element of the triangle number.
-            if (initFrame > 0) {
-                initFrame--;
-                initLandsAt -= velocity;
-            }
-        }
-    }
-
     private static void findValidXs(Target target, Map<Integer, List<Integer>> hitsMoving, Set<Integer> hitsStopped) {
         // We will try each possible valid velocity -- the range spans from the value that causes the probe to stop just
         // inside the target, to that value causes it to pass through the end of the target in the first frame. For each
@@ -184,6 +114,57 @@ public class Main {
                 }
                 frame--;
                 landsAt -= (velocity - frame);
+            }
+        }
+    }
+
+    private static void findValidYs(Target target, Map<Integer, List<Integer>> hits) {
+        // We will try each possible valid velocity -- the range of negative velocities spans from -1 (just barely
+        // faster than dropping the probe) to whatever value causes it to pass through the bottom of the target in the
+        // first frame, and each of these has a corresponding positive velocity that will cause it to track the same
+        // path towards and past the target, but delayed by some number of frames to account for its upward flight.
+        //
+        // For each negative velocity, we will start at the top of the target, and increment the frame we're considering
+        // until the probe has fallen past the bottom of the target. For each hit, we will also calculate and add the
+        // corresponding positive velocity.
+        //
+        // the frame at which we will start at in each iteration -- wherever we are just above (or in) the target
+        int frameInit = inverseTriangleNumber(-1 * target.getYMax());
+        for (int velocity = -1; velocity >= target.getYMin(); velocity--) {
+            int frame = frameInit;
+            // our initial landing point for this velocity - it's whatever distance we'd travel to this frame if the
+            // velocity were 1, plus one at each frame for however much faster than one this velocity is
+            int landsAt = triangleNumber(frame) * -1 + (velocity + 1) * frame;
+            boolean foundHit = false;
+            while (landsAt >= target.getYMin()) {
+                if (target.isYOnTarget(landsAt)) {
+                    List<Integer> negHitFrames = hits.computeIfAbsent(velocity, k -> new ArrayList<>());
+                    negHitFrames.add(frame);
+                    // we need to add the positive velocity that goes along with this negative velocity -- i.e., the
+                    // velocity we could fire the probe upwards at, such that when it gets back to the origin it's
+                    // // moving at the negative velocity
+                    int posVelocity = (velocity * -1) - 1;
+                    int flightFrames = posVelocity * 2 + 1;
+                    List<Integer> positiveHitFrames = hits.computeIfAbsent(posVelocity, k -> new ArrayList<>());
+                    positiveHitFrames.add(frame + flightFrames);
+                    if (!foundHit) {
+                        if (frame - frameInit > 1) {
+                            // our first (highest) hit -- and we checked at least two frames that were short of this one
+                            // on our way here, so push the init frame forwards to avoid needlessly checking extra empty
+                            // frames for the next velocity
+                            frameInit = frame - 1;
+                        }
+                        foundHit = true;
+                    }
+                }
+                // update where we're going to land -- the frame indicates how much bigger than the initial velocity
+                // this increment is going to be
+                landsAt -= (frame + (velocity * -1));
+                frame++;
+            }
+            // we'll start one frame earlier for each velocity (barring any additional adjustment we made).
+            if (frameInit > 0) {
+                frameInit--;
             }
         }
     }
