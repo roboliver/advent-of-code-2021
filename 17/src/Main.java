@@ -99,40 +99,41 @@ public class Main {
         // drop frames.
 
 
-        int startFrame = inverseTriangleNumber(-1 * target.getYMax());
-        int startYLandsAt = triangleNumber(startFrame) * -1;
+        // the frame at which we will start at in each iteration -- wherever we are just above (or in) the target.
+        int initFrame = inverseTriangleNumber(-1 * target.getYMax());
+        // the position this starting frame will put us at.
+        int initLandsAt = triangleNumber(initFrame) * -1;
         for (int velocity = -1; velocity >= target.getYMin(); velocity--) {
-            boolean pastEndOfTarget = false;
-            int frame = startFrame;
-            int currentLandsAt = startYLandsAt;
-            int adding = frame - velocity;
-            while (!pastEndOfTarget) {
-                if (currentLandsAt <= target.getYMax()) {
-                    if (currentLandsAt < target.getYMin()) {
-                        pastEndOfTarget = true;
+            boolean pastTarget = false;
+            int frame = initFrame;
+            int landsAt = initLandsAt;
+            while (!pastTarget) {
+                // we haven't passed the target entirely yet
+                if (landsAt <= target.getYMax()) {
+                    // we are below the start of the target
+                    if (target.isYOnTarget(landsAt)) {
+                        // we are within the target
+                        List<Integer> negHitFrames = hits.computeIfAbsent(velocity, k -> new ArrayList<>());
+                        negHitFrames.add(frame);
+                        int posVelocity = (velocity * -1) - 1;
+                        int flightFrames = posVelocity * 2 + 1;
+                        List<Integer> positiveHitFrames = hits.computeIfAbsent(posVelocity, k -> new ArrayList<>());
+                        positiveHitFrames.add(frame + flightFrames);
                     } else {
-                        int negativeVelocity = velocity;
-                        int positiveVelocity = (velocity * -1) - 1;
-                        int negativeFrameHit = frame;
-                        int flightTime = positiveVelocity * 2 + 1;
-                        int positiveFrameHit = negativeFrameHit + flightTime;
-                        List<Integer> negatives = hits.computeIfAbsent(negativeVelocity, k -> new ArrayList<>());
-                        negatives.add(negativeFrameHit);
-                        List<Integer> positives = hits.computeIfAbsent(positiveVelocity, k -> new ArrayList<>());
-                        positives.add(positiveFrameHit);
-                    }
-                } else {
-                    if (adding - velocity > 0 || frame == 0) {
-                        startFrame++;
-                        startYLandsAt = currentLandsAt - adding;
+                        pastTarget = true;
                     }
                 }
-                currentLandsAt -= adding;
+                // still searching for the end. so...
+                landsAt -= (frame - velocity);
                 frame++;
-                adding++;
             }
-            startFrame--;
-            startYLandsAt -= velocity;
+            // we'll start one frame earlier each loop, and the position this will have us start at is determined by
+            // removing the current velocity from the previous calculated position, since we will skip this part of the
+            // triangle number.
+            if (initFrame > 0) {
+                initFrame--;
+                initLandsAt -= velocity;
+            }
         }
     }
 
