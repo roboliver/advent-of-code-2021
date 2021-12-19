@@ -98,11 +98,10 @@ public class Main {
         // above answers both with and without the flight frames! (i.e., multiplying the Y by -1 and then deducting 1
         // from it. so e.g., if 9 is a valid value, and takes flight+drop frames, then -10 is also valid, and it takes
         // drop frames.
-        int startFrame = framesToReachPosition(-1 * target.getYMax());
-        int startYLandsAt = (startFrame * (startFrame + 1)) / 2;
+        int startFrame = inverseTriangleNumber(-1 * target.getYMax());
+        int startYLandsAt = triangleNumber(startFrame);
         for (int yVelocityCur = 1; yVelocityCur <= -1 * target.getYMin(); yVelocityCur++) {
             //System.out.println("velocity: " + yVelocityCur + ", starting in frame " + startFrame + ", landing at y=" + startYLandsAt);
-            boolean pastStartOfTarget = false;
             boolean pastEndOfTarget = false;
             int currentFrame = startFrame;
             int currentLandsAt = startYLandsAt;
@@ -110,7 +109,6 @@ public class Main {
             while (!pastEndOfTarget) {
                 //System.out.println("currently landing at " + currentLandsAt + ", target is " + (target.getYMax() * -1));
                 if (currentLandsAt >= target.getYMax() * -1) {
-                    pastStartOfTarget = true;
                     if (currentLandsAt > target.getYMin() * -1) {
                         pastEndOfTarget = true;
                     } else {
@@ -148,55 +146,51 @@ public class Main {
         }
     }
 
-    private static int framesToReachPosition(int destination) {
-        return (int) (Math.sqrt(1 + (destination * 8)) - 1) / 2; // reverse triangle formula
-    }
-
-    private static void findValidXs(Target target, Map<Integer, List<Integer>> xVelsToHitFramesMoving, Set<Integer> xVelsThatStopInTarget) {
-        System.out.println("target is: " + target.getXMin() + ".." + target.getXMax());
-        // The minimum x is whatever value causes the probe to stop moving inside the target's x window, as close to the
-        // start as possible. The maximum x is whatever value causes the probe to pass through the end of the target on
-        // the first frame. Between these, inclusive, will be all the valid X values.
+    private static void findValidXs(Target target, Map<Integer, List<Integer>> hitsMoving, Set<Integer> hitsStopped) {
+        // We will try each possible valid velocity -- the range spans from the value that causes the probe to stop just
+        // inside the target, to that value causes it to pass through the end of the target in the first frame. For each
+        // velocity, we will start at the end of the target, and decrement the frame we're considering until we have
+        // passed through the front of the target.
         //
-        // get the lowest valid X position by reversing the triangle number formula
-        //
-        // map from x velocities to frames at which the probe is within the target (but hasn't stopped)
-        // set of x velocities that cause the probe to stop within the target (which will be after the velocity's number
-        // of frames)
-        int xVelocityCur = framesToReachPosition(target.getXMin());
-        int minDeductions = 0;
-        while (xVelocityCur <= target.getXMax()) {
-            int xLandsAt = ((xVelocityCur * (xVelocityCur + 1)) / 2) - ((minDeductions * (minDeductions + 1) / 2));
-            int deductions = minDeductions;
-            boolean gotAHit = false;
-            //System.out.println("checking velocity " + xVelocityCur);
-            //System.out.println("when it stops, it will end at " + xLandsAt);
-            while (xLandsAt >= target.getXMin()) {
-                if (target.isXOnTarget(xLandsAt)) {
-                    if (deductions == 0) {
-                        xVelsThatStopInTarget.add(xVelocityCur);
+        // the number of end frames we will skip in our backwards iteration
+        int framesSkip = 0;
+        for (int velocity = inverseTriangleNumber(target.getXMin()); velocity <= target.getXMax(); velocity++) {
+            int frame = velocity - framesSkip;
+            // find the first (furthest) position we're interested in for this velocity -- it's wherever the probe would
+            // stop if allowed to run until it does, minus however far it would travel in the frames we're skipping
+            int landsAt = triangleNumber(velocity) - triangleNumber(velocity - frame);
+            boolean foundHit = false;
+            while (landsAt >= target.getXMin()) {
+                if (target.isXOnTarget(landsAt)) {
+                    if (frame == velocity) {
+                        // this is the frame when the probe stops entirely -- so for this velocity the Y frame doesn't
+                        // have to exactly match, it only needs to be at least this high, so add this X velocity to the
+                        // separate results set used to track these
+                        hitsStopped.add(velocity);
                     } else {
-                        List<Integer> frames = xVelsToHitFramesMoving.computeIfAbsent(xVelocityCur, k -> new ArrayList<>());
-                        frames.add(xVelocityCur - deductions);
+                        // save the frame we hit the target at for this velocity
+                        List<Integer> hitFrames = hitsMoving.computeIfAbsent(velocity, k -> new ArrayList<>());
+                        hitFrames.add(frame);
                     }
-                    if (!gotAHit) {
-                        minDeductions = deductions;
-                        gotAHit = true;
+                    if (!foundHit) {
+                        // our first (furthest) hit -- since the next velocity will be higher, there's no way we will
+                        // possibly need to consider any later frames than this for it
+                        framesSkip = (velocity - frame);
+                        foundHit = true;
                     }
                 }
-                deductions++;
-                xLandsAt -= deductions;
+                frame--;
+                landsAt -= (velocity - frame);
             }
-            xVelocityCur++;
         }
-        System.out.println("moving:");
-        for (Map.Entry<Integer, List<Integer>> entry : xVelsToHitFramesMoving.entrySet()) {
-            System.out.println(entry.getKey() + ": " + Arrays.toString(entry.getValue().toArray()));
-        }
-        System.out.println("stopped:");
-        for (Integer frame : xVelsThatStopInTarget) {
-            System.out.println(frame);
-        }
+    }
+
+    private static int triangleNumber(int n) {
+        return (n * (n + 1)) / 2;
+    }
+
+    private static int inverseTriangleNumber(int t) {
+        return (int) (Math.sqrt(1 + (t * 8)) - 1) / 2;
     }
 
     private static Target target(BufferedReader reader) throws IOException {
