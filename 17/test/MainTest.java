@@ -9,7 +9,7 @@ public class MainTest {
 
     @Test
     public void  testHighestArc() throws IOException {
-        //assertEquals(45, Main.highestArc(Utils.testLineReader(SAMPLE)));
+        assertEquals(45, Main.highestArc(Utils.testLineReader(SAMPLE)));
     }
 
     @Test

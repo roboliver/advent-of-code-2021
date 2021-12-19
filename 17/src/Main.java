@@ -13,67 +13,53 @@ public class Main {
     }
 
     public static int highestArc(BufferedReader reader) throws IOException {
-
-        return 0;
+        int maxY = validVelocities(target(reader)).stream()
+                .map(Point::y)
+                .reduce(Integer.MIN_VALUE, Integer::max);
+        return triangleNumber(maxY);
     }
 
     public static int arcCount(BufferedReader reader) throws IOException {
-        int count = 0;
-        Target target = target(reader);
-        Map<Integer, List<Integer>> xVelsToHitFramesMoving = new HashMap<>();
-        Set<Integer> xVelsThatStopInTarget = new HashSet<>();
-        findValidXs(target, xVelsToHitFramesMoving, xVelsThatStopInTarget);
-        Map<Integer, List<Integer>> yVelsToHitFrames = new HashMap<>();
-        findValidYs(target, yVelsToHitFrames);
-        Map<Integer, List<Integer>> xHitFramesMovingToVels = reverseMap(xVelsToHitFramesMoving);
-        System.out.println("x hit frames to velocities:");
-        for (Map.Entry<Integer, List<Integer>> entry : xHitFramesMovingToVels.entrySet()) {
-            System.out.println(entry.getKey() + ": " + Arrays.toString(entry.getValue().toArray()));
-        }
-        System.out.println("x velocities that stop mid-target:");
-        for (Integer frame : xVelsThatStopInTarget) {
-            System.out.println(frame);
-        }
-        Map<Integer, List<Integer>> yHitFramesToVels = reverseMap(yVelsToHitFrames);
-        System.out.println("y hit frames to velocities:");
-        for (Map.Entry<Integer, List<Integer>> entry : yHitFramesToVels.entrySet()) {
-            System.out.println(entry.getKey() + ": " + Arrays.toString(entry.getValue().toArray()));
-        }
-
-        Map<Integer, HashSet<Integer>> validXYVelocities = new HashMap<>();
-        for (Map.Entry<Integer, List<Integer>> xHitFrameMovingToVels : xHitFramesMovingToVels.entrySet()) {
-            List<Integer> yVelsThatHitInTheXFrame = yHitFramesToVels.get(xHitFrameMovingToVels.getKey());
-            if (yVelsThatHitInTheXFrame != null) {
-                for (Integer x : xHitFrameMovingToVels.getValue()) {
-                    for (Integer y : yVelsThatHitInTheXFrame) {
-                        Set<Integer> ysAtThisX = validXYVelocities.computeIfAbsent(x, k -> new HashSet<>());
-                        ysAtThisX.add(y);
-                    }
-                }
-            }
-        }
-        for (Integer xVelStopsInTarget : xVelsThatStopInTarget) {
-            for (Map.Entry<Integer, List<Integer>> yHitFrameVels : yHitFramesToVels.entrySet()) {
-                if (yHitFrameVels.getKey() >= xVelStopsInTarget) {
-                    for (Integer y : yHitFrameVels.getValue()) {
-                        Set<Integer> ysAtThisX = validXYVelocities.computeIfAbsent(xVelStopsInTarget, k -> new HashSet<>());
-                        ysAtThisX.add(y);
-                    }
-                }
-            }
-        }
-        for (HashSet<Integer> values : validXYVelocities.values()) {
-            count += values.size();
-        }
-        return count;
+        return validVelocities(target(reader)).size();
     }
 
-    private static Map<Integer, List<Integer>> reverseMap(Map<Integer, List<Integer>> unreversed) {
+    private static Set<Point> validVelocities(Target target) {
+        Map<Integer, List<Integer>> xHitsMoving = new HashMap<>();
+        Set<Integer> xHitsStopped = new HashSet<>();
+        findValidXs(target, xHitsMoving, xHitsStopped);
+        Map<Integer, List<Integer>> yHits = new HashMap<>();
+        findValidYs(target, yHits);
+        Map<Integer, List<Integer>> xFramesMoving = reverseMap(xHitsMoving);
+        Map<Integer, List<Integer>> yFrames = reverseMap(yHits);
+        Set<Point> velocities = new HashSet<>();
+        for (Map.Entry<Integer, List<Integer>> xFrame : xFramesMoving.entrySet()) {
+            List<Integer> yVelocities = yFrames.get(xFrame.getKey());
+            if (yVelocities != null) {
+                for (Integer xVelocity : xFrame.getValue()) {
+                    for (Integer yVelocity : yVelocities) {
+                        velocities.add(new Point(xVelocity, yVelocity));
+                    }
+                }
+            }
+        }
+        for (Integer xVelocity : xHitsStopped) {
+            for (Map.Entry<Integer, List<Integer>> yFrame : yFrames.entrySet()) {
+                if (yFrame.getKey() >= xVelocity) {
+                    for (Integer yVelocity : yFrame.getValue()) {
+                        velocities.add(new Point(xVelocity, yVelocity));
+                    }
+                }
+            }
+        }
+        return velocities;
+    }
+
+    private static Map<Integer, List<Integer>> reverseMap(Map<Integer, List<Integer>> original) {
         Map<Integer, List<Integer>> reversed = new HashMap<>();
-        for (Map.Entry<Integer, List<Integer>> unreversedEntry : unreversed.entrySet()) {
-            for (Integer valueEntry : unreversedEntry.getValue()) {
-                List<Integer> entryEntry = reversed.computeIfAbsent(valueEntry, k -> new ArrayList<>());
-                entryEntry.add(unreversedEntry.getKey());
+        for (Map.Entry<Integer, List<Integer>> entry : original.entrySet()) {
+            for (Integer value : entry.getValue()) {
+                List<Integer> reverseValues = reversed.computeIfAbsent(value, k -> new ArrayList<>());
+                reverseValues.add(entry.getKey());
             }
         }
         return reversed;
@@ -162,7 +148,7 @@ public class Main {
                 landsAt -= (frame + (velocity * -1));
                 frame++;
             }
-            // we'll start one frame earlier for each velocity (barring any additional adjustment we made).
+            // we'll start one frame earlier for each velocity (barring any additional adjustment we made)
             if (frameInit > 0) {
                 frameInit--;
             }
