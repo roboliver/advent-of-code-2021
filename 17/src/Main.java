@@ -79,8 +79,7 @@ public class Main {
         return reversed;
     }
 
-    private static void findValidYs(Target target, Map<Integer, List<Integer>> yVelsToHitFrames) {
-        System.out.println("target is: " + target.getYMin() + ".." + target.getYMax());
+    private static void findValidYs(Target target, Map<Integer, List<Integer>> hits) {
         // The maximum y is whatever positive value causes the probe to immediately pass into the window at as low a
         // point as possible upon dropping back to zero. The minimum y is whatever value causes the probe to pass
         // through the bottom of the target on the first frame. Between these, inclusive, will be all the valid Y
@@ -98,51 +97,42 @@ public class Main {
         // above answers both with and without the flight frames! (i.e., multiplying the Y by -1 and then deducting 1
         // from it. so e.g., if 9 is a valid value, and takes flight+drop frames, then -10 is also valid, and it takes
         // drop frames.
+
+
         int startFrame = inverseTriangleNumber(-1 * target.getYMax());
-        int startYLandsAt = triangleNumber(startFrame);
-        for (int yVelocityCur = 1; yVelocityCur <= -1 * target.getYMin(); yVelocityCur++) {
-            //System.out.println("velocity: " + yVelocityCur + ", starting in frame " + startFrame + ", landing at y=" + startYLandsAt);
+        int startYLandsAt = triangleNumber(startFrame) * -1;
+        for (int velocity = -1; velocity >= target.getYMin(); velocity--) {
             boolean pastEndOfTarget = false;
-            int currentFrame = startFrame;
+            int frame = startFrame;
             int currentLandsAt = startYLandsAt;
-            int adding = yVelocityCur  + currentFrame;
+            int adding = frame - velocity;
             while (!pastEndOfTarget) {
-                //System.out.println("currently landing at " + currentLandsAt + ", target is " + (target.getYMax() * -1));
-                if (currentLandsAt >= target.getYMax() * -1) {
-                    if (currentLandsAt > target.getYMin() * -1) {
+                if (currentLandsAt <= target.getYMax()) {
+                    if (currentLandsAt < target.getYMin()) {
                         pastEndOfTarget = true;
                     } else {
-                        //System.out.println("got a hit. vel: " + yVelocityCur +", frame: " + currentFrame + ", lands at: " + currentLandsAt);
-                        int negativeVelocity = -1 * yVelocityCur;
-                        int positiveVelocity = yVelocityCur - 1;
-                        int negativeFrameHit = currentFrame;
+                        int negativeVelocity = velocity;
+                        int positiveVelocity = (velocity * -1) - 1;
+                        int negativeFrameHit = frame;
                         int flightTime = positiveVelocity * 2 + 1;
                         int positiveFrameHit = negativeFrameHit + flightTime;
-                        //System.out.println("if fired upwards at velocity " + positiveVelocity +", this will land at y=" + currentLandsAt + " in frame " + positiveFrameHit);
-                        //System.out.println("if fired downwards at velocity " + negativeVelocity +", this will land at y=" + currentLandsAt + " in frame " + negativeFrameHit);
-                        List<Integer> negatives = yVelsToHitFrames.computeIfAbsent(negativeVelocity, k -> new ArrayList<>());
+                        List<Integer> negatives = hits.computeIfAbsent(negativeVelocity, k -> new ArrayList<>());
                         negatives.add(negativeFrameHit);
-                        List<Integer> positives = yVelsToHitFrames.computeIfAbsent(positiveVelocity, k -> new ArrayList<>());
+                        List<Integer> positives = hits.computeIfAbsent(positiveVelocity, k -> new ArrayList<>());
                         positives.add(positiveFrameHit);
                     }
                 } else {
-                    if (adding - yVelocityCur > 0 || currentFrame == 0) {
-                        //System.out.
-                        // not in the zeroth or first frame, so make some updates...
+                    if (adding - velocity > 0 || frame == 0) {
                         startFrame++;
-                        startYLandsAt = currentLandsAt + adding;
+                        startYLandsAt = currentLandsAt - adding;
                     }
                 }
-                currentLandsAt += adding;
-                currentFrame++;
+                currentLandsAt -= adding;
+                frame++;
                 adding++;
             }
             startFrame--;
-            startYLandsAt -= yVelocityCur;
-        }
-        System.out.println("y hits:");
-        for (Map.Entry<Integer, List<Integer>> entry : yVelsToHitFrames.entrySet()) {
-            System.out.println(entry.getKey() + ": " + Arrays.toString(entry.getValue().toArray()));
+            startYLandsAt -= velocity;
         }
     }
 
