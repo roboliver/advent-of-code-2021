@@ -110,19 +110,20 @@ public class Main {
         // first frame, and each of these has a corresponding positive velocity that will cause it to track the same
         // path towards and past the target, but delayed by some number of frames to account for its upward flight.
         //
-        // For each negative velocity, we will start at the top of the target, and increment the frame we're considering
-        // until the probe has fallen past the bottom of the target. For each hit, we will also calculate and add the
-        // corresponding positive velocity.
+        // For each negative velocity, we will start at the bottom of the target, and decrement the frame we're
+        // considering until the probe has risen above the top of the target. For each hit, we will also calculate and
+        // include the corresponding positive velocity.
         //
-        // the frame at which we will start at in each iteration -- wherever we are just above (or in) the target
-        int frameInit = inverseTriangleNumber(-1 * target.getYMax());
+        // the frame we will start at in each iteration -- we initialise this to the last frame for velocity -1 before
+        // the probe has passed the target
+        int frameInit = inverseTriangleNumber(-1 * target.getYMin());
         for (int velocity = -1; velocity >= target.getYMin(); velocity--) {
             int frame = frameInit;
-            // our initial landing point for this velocity - it's whatever distance we'd travel to this frame if the
+            // our initial landing point for this velocity -- it's whatever distance we'd travel to this frame if the
             // velocity were 1, plus one at each frame for however much faster than one this velocity is
             int landsAt = triangleNumber(frame) * -1 + (velocity + 1) * frame;
             boolean foundHit = false;
-            while (landsAt >= target.getYMin()) {
+            while (landsAt <= target.getYMax()) {
                 if (target.isYOnTarget(landsAt)) {
                     List<Integer> negHitFrames = hits.computeIfAbsent(velocity, k -> new ArrayList<>());
                     negHitFrames.add(frame);
@@ -134,23 +135,14 @@ public class Main {
                     List<Integer> positiveHitFrames = hits.computeIfAbsent(posVelocity, k -> new ArrayList<>());
                     positiveHitFrames.add(frame + flightFrames);
                     if (!foundHit) {
-                        if (frame - frameInit > 1) {
-                            // our first (highest) hit -- and we checked at least two frames that were short of this one
-                            // on our way here, so push the init frame forwards to avoid needlessly checking extra empty
-                            // frames for the next velocity
-                            frameInit = frame - 1;
-                        }
+                        // our first hit -- since the next velocity will be higher, there's no way we will possibly need
+                        // to consider any later frames than this for it
+                        frameInit = frame;
                         foundHit = true;
                     }
                 }
-                // update where we're going to land -- the frame indicates how much bigger than the initial velocity
-                // this increment is going to be
-                landsAt -= (frame + (velocity * -1));
-                frame++;
-            }
-            // we'll start one frame earlier for each velocity (barring any additional adjustment we made)
-            if (frameInit > 0) {
-                frameInit--;
+                frame--;
+                landsAt += (frame + (velocity * -1));
             }
         }
     }
