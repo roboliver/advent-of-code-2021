@@ -1,5 +1,3 @@
-import java.util.Objects;
-
 public class RegularNumber implements Element {
     private Pair parent;
     private int value;
@@ -7,9 +5,6 @@ public class RegularNumber implements Element {
     private boolean isLeftNotRight;
 
     public RegularNumber(int value, int depth) {
-        if (value < 0 || value > 9) {
-            //throw new IllegalArgumentException("regular numbers must be between 0 and 9");
-        }
         this.value = value;
         this.depth = depth;
     }

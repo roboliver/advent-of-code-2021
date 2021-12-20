@@ -32,13 +32,6 @@ public class Pair implements Element {
     @Override
     public boolean checkExplode() {
         if (depth > 3) {
-            //System.out.println("uh oh! exploding the pair " + toString());
-            //System.out.println("our depth is " + depth);
-            if (parent != null) {
-                //System.out.println("and our parent is non-null.");
-            } else {
-                //System.out.println("and yet our parent is null. curious!");
-            }
             explode();
             return true;
         } else {
@@ -48,9 +41,6 @@ public class Pair implements Element {
 
     private void explode() {
         if (parent != null) {
-            //System.out.println("parent is non-null.");
-            //System.out.println("pushing " + left.getValue() + " left from a " + (isLeftNotRight ? "left" : "right") + " child.");
-            //System.out.println("pushing " + right.getValue() + " right from a " + (isLeftNotRight ? "left" : "right") + " child.");
             parent.pushShrapnelLeft(left.getMagnitude(), isLeftNotRight);
             parent.pushShrapnelRight(right.getMagnitude(), isLeftNotRight);
             parent.childExploded(isLeftNotRight);
@@ -93,7 +83,6 @@ public class Pair implements Element {
 
     @Override
     public void addShrapnelFromRight(int shrapnel) {
-        //System.out.println("our left node is " + left.toString() + " and we are pushing shrapnel to it from the right.");
         right.addShrapnelFromRight(shrapnel);
     }
 
