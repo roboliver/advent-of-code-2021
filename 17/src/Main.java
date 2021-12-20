@@ -24,13 +24,17 @@ public class Main {
     }
 
     private static Set<Point> validVelocities(Target target) {
+        // get maps from X and Y velocities to the frames at which they hit the target, and also separately, the X
+        // velocities that stop within the target, which will happen after the same number of frames as the velocity
         Map<Integer, List<Integer>> xHitsMoving = new HashMap<>();
         Set<Integer> xHitsStopped = new HashSet<>();
         findValidXs(target, xHitsMoving, xHitsStopped);
         Map<Integer, List<Integer>> yHits = new HashMap<>();
         findValidYs(target, yHits);
+        // reverse the maps, so they map hit frames to velocities that hit the target at that frame
         Map<Integer, List<Integer>> xFramesMoving = reverseMap(xHitsMoving);
         Map<Integer, List<Integer>> yFrames = reverseMap(yHits);
+        // find frame matches and add the velocity pairs
         Set<Point> velocities = new HashSet<>();
         for (Map.Entry<Integer, List<Integer>> xFrame : xFramesMoving.entrySet()) {
             List<Integer> yVelocities = yFrames.get(xFrame.getKey());
@@ -42,6 +46,8 @@ public class Main {
                 }
             }
         }
+        // add the pairs for the X velocities that stop inside the target -- for these, any Y velocity that takes at
+        // least that many frames to hit the target is valid
         for (Integer xVelocity : xHitsStopped) {
             for (Map.Entry<Integer, List<Integer>> yFrame : yFrames.entrySet()) {
                 if (yFrame.getKey() >= xVelocity) {
@@ -66,34 +72,29 @@ public class Main {
     }
 
     private static void findValidXs(Target target, Map<Integer, List<Integer>> hitsMoving, Set<Integer> hitsStopped) {
-        // We will try each possible valid velocity -- the range spans from the value that causes the probe to stop just
-        // inside the target, to that value causes it to pass through the end of the target in the first frame. For each
-        // velocity, we will start at the end of the target, and decrement the frame we're considering until we have
-        // passed through the front of the target.
-        //
-        // the number of end frames we will skip in our backwards iteration
+        // iterate backwards through the target for every viable X velocity, saving the hit frames we find
         int framesSkip = 0;
+        // viable velocities are from the value that stops at the start of the target, to the value that hits the end of
+        // the target in the first frame
         for (int velocity = inverseTriangleNumber(target.getXMin()); velocity <= target.getXMax(); velocity++) {
             int frame = velocity - framesSkip;
-            // find the first (furthest) position we're interested in for this velocity -- it's wherever the probe would
-            // stop if allowed to run until it does, minus however far it would travel in the frames we're skipping
             int landsAt = triangleNumber(velocity) - triangleNumber(velocity - frame);
             boolean foundHit = false;
             while (landsAt >= target.getXMin()) {
                 if (target.isXOnTarget(landsAt)) {
                     if (frame == velocity) {
-                        // this is the frame when the probe stops entirely -- so for this velocity the Y frame doesn't
-                        // have to exactly match, it only needs to be at least this high, so add this X velocity to the
-                        // separate results set used to track these
+                        // the probe stops moving at this point, so any Y velocity that hits on at least this X velocity
+                        // frame will be valid
                         hitsStopped.add(velocity);
                     } else {
-                        // save the frame we hit the target at for this velocity
+                        // the probe is still moving, so the corresponding Y velocity will need to hit in the same frame
                         List<Integer> hitFrames = hitsMoving.computeIfAbsent(velocity, k -> new ArrayList<>());
                         hitFrames.add(frame);
                     }
                     if (!foundHit) {
-                        // our first (furthest) hit -- since the next velocity will be higher, there's no way we will
-                        // possibly need to consider any later frames than this for it
+                        // first hit at this velocity -- since the next one will be higher, the probe will have moved
+                        // further at this many frames before it stops, so we won't need to consider any later frames
+                        // in future
                         framesSkip = (velocity - frame);
                         foundHit = true;
                     }
@@ -105,38 +106,28 @@ public class Main {
     }
 
     private static void findValidYs(Target target, Map<Integer, List<Integer>> hits) {
-        // We will try each possible valid velocity -- the range of negative velocities spans from -1 (just barely
-        // faster than dropping the probe) to whatever value causes it to pass through the bottom of the target in the
-        // first frame, and each of these has a corresponding positive velocity that will cause it to track the same
-        // path towards and past the target, but delayed by some number of frames to account for its upward flight.
-        //
-        // For each negative velocity, we will start at the bottom of the target, and decrement the frame we're
-        // considering until the probe has risen above the top of the target. For each hit, we will also calculate and
-        // include the corresponding positive velocity.
-        //
-        // the frame we will start at in each iteration -- we initialise this to the last frame for velocity -1 before
-        // the probe has passed the target
+        // iterate backwards through the target for every viable Y velocity, saving the hit frames we find
         int frameInit = inverseTriangleNumber(-1 * target.getYMin());
+        // viable velocities are from -1 to the value that hits the end of the target in the first frame -- note also
+        // that each of these negative velocities has a corresponding positive velocity too, where the probe is first
+        // launched upwards and is moving at the negative velocity once it gets back to the origin
         for (int velocity = -1; velocity >= target.getYMin(); velocity--) {
             int frame = frameInit;
-            // our initial landing point for this velocity -- it's whatever distance we'd travel to this frame if the
-            // velocity were 1, plus one at each frame for however much faster than one this velocity is
             int landsAt = triangleNumber(frame) * -1 + (velocity + 1) * frame;
             boolean foundHit = false;
             while (landsAt <= target.getYMax()) {
                 if (target.isYOnTarget(landsAt)) {
+                    // add the negative velocity
                     List<Integer> negHitFrames = hits.computeIfAbsent(velocity, k -> new ArrayList<>());
                     negHitFrames.add(frame);
-                    // we need to add the positive velocity that goes along with this negative velocity -- i.e., the
-                    // velocity we could fire the probe upwards at, such that when it gets back to the origin it's
-                    // // moving at the negative velocity
+                    // calculate and add the corresponding positive velocity
                     int posVelocity = (velocity * -1) - 1;
                     int flightFrames = posVelocity * 2 + 1;
                     List<Integer> positiveHitFrames = hits.computeIfAbsent(posVelocity, k -> new ArrayList<>());
                     positiveHitFrames.add(frame + flightFrames);
                     if (!foundHit) {
-                        // our first hit -- since the next velocity will be higher, there's no way we will possibly need
-                        // to consider any later frames than this for it
+                        // first hit at this velocity -- since the next one will be higher, the probe will have moved
+                        // further after this many frames, so we won't need to consider any later frames in future
                         frameInit = frame;
                         foundHit = true;
                     }
