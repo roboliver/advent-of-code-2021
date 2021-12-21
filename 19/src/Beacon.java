@@ -70,4 +70,9 @@ public class Beacon {
         int[] vals = {x, y, z};
         return Arrays.hashCode(vals);
     }
+
+    @Override
+    public String toString() {
+        return ("[" + x + "," + y + "," + z + "]");
+    }
 }

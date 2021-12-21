@@ -16,4 +16,16 @@ public class Cluster {
         }
         return rotated;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        for (Beacon beacon : beacons) {
+            if (buf.length() > 0) {
+                buf.append('\n');
+            }
+            buf.append(beacon.toString());
+        }
+        return buf.toString();
+    }
 }

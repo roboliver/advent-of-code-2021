@@ -1,6 +1,7 @@
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -10,4 +11,12 @@ public class MainTest {
         assertEquals(79, Main.beaconCount(Utils.inputLineReader("sample.txt")));
     }
 
+    @Test
+    public void testPrintClusters() throws IOException {
+        List<Cluster> clusters = Main.clusters(Utils.inputLineReader("sample.txt"));
+        for (Cluster cluster : clusters) {
+            System.out.println(cluster);
+            System.out.println();
+        }
+    }
 }
