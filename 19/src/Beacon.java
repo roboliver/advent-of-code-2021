@@ -45,7 +45,7 @@ public class Beacon {
             yNew = xNew * -1;
             xNew = xTemp;
         }
-        System.out.println("new x: " + xNew + ", new y: " + yNew + ", new z: " + zNew);
+        //System.out.println("new x: " + xNew + ", new y: " + yNew + ", new z: " + zNew);
         return new Beacon(xNew, yNew, zNew);
     }
 

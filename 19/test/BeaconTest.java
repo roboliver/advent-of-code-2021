@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 public class BeaconTest {
     @Test
-    public void rotateTest() {
+    public void testRotate() {
         Beacon beacon = new Beacon(1, 2, 3);
         // no rotation
         assertEquals(new Beacon(1, 2, 3), beacon.rotate(0, 0, 0));
@@ -20,6 +20,12 @@ public class BeaconTest {
         assertEquals(new Beacon(2, -1, 3), beacon.rotate(0, 0, 1));
         assertEquals(new Beacon(-1, -2, 3), beacon.rotate(0, 0, 2));
         assertEquals(new Beacon(-2, 1, 3), beacon.rotate(0, 0, 3));
+    }
+
+    @Test
+    public void testTranslate() {
+        Beacon beacon = new Beacon(1, 2, 3);
+        assertEquals(new Beacon(2, 2, 3), beacon.translate(1, 0, 0));
     }
 
     @Test

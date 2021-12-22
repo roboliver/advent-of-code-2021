@@ -11,7 +11,7 @@ public class MainTest {
         assertEquals(79, Main.beaconCount(Utils.inputLineReader("sample.txt")));
     }
 
-    @Test
+    //@Test
     public void testPrintClusters() throws IOException {
         List<Cluster> clusters = Main.clusters(Utils.inputLineReader("sample.txt"));
         for (Cluster cluster : clusters) {
