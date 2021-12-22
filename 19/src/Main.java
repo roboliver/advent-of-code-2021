@@ -10,9 +10,13 @@ public class Main {
         }
     }
 
-    public static int beaconCount(BufferedReader lineReader) {
+    public static int beaconCount(BufferedReader lineReader) throws IOException {
+        List<Cluster> clusters = clusters(lineReader);
+
         return 0;
     }
+
+
 
     public static List<Cluster> clusters(BufferedReader lineReader) throws IOException {
         List<Cluster> clusters = new ArrayList<>();

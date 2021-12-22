@@ -24,9 +24,12 @@ public class Beacon {
     }
 
     public Beacon rotate(int pitch, int roll, int yaw) {
-        int xNew = requireValidRotate(pitch);
-        int yNew = requireValidRotate(roll);
-        int zNew = requireValidRotate(yaw);
+        assertValidRotate(pitch);
+        assertValidRotate(roll);
+        assertValidRotate(yaw);
+        int xNew = x;
+        int yNew = y;
+        int zNew = z;
         for (int i = 0; i < pitch; i++) {
             int zTemp = xNew;
             xNew = zNew * -1;
@@ -42,14 +45,26 @@ public class Beacon {
             yNew = xNew * -1;
             xNew = xTemp;
         }
+        System.out.println("new x: " + xNew + ", new y: " + yNew + ", new z: " + zNew);
         return new Beacon(xNew, yNew, zNew);
     }
 
-    private static int requireValidRotate(int rotate) {
+    public Beacon translate(int x, int y, int z) {
+        return new Beacon(this.x + x, this.y + y, this.z + z);
+    }
+
+    private static int assertValidRotate(int rotate) {
         if (rotate < 0 || rotate > 3) {
             throw new IllegalArgumentException("rotation value must be between 0 and 3");
         }
         return rotate;
+    }
+
+    public Distance distanceTo(Beacon other) {
+        int xDist = Math.abs(x - other.x);
+        int yDist = Math.abs(y - other.y);
+        int zDist = Math.abs(z - other.z);
+        return new Distance(Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2) + Math.pow(zDist, 2)));
     }
 
     @Override

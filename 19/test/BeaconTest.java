@@ -21,4 +21,16 @@ public class BeaconTest {
         assertEquals(new Beacon(-1, -2, 3), beacon.rotate(0, 0, 2));
         assertEquals(new Beacon(-2, 1, 3), beacon.rotate(0, 0, 3));
     }
+
+    @Test
+    public void testDistanceTo() {
+        Beacon beacon1 = new Beacon(0, 0, 0);
+        Beacon beacon2 = new Beacon(4, 4, 4);
+        Beacon beacon2Neg = new Beacon(-4, -4, -4);
+        Beacon beacon3 = new Beacon(500, 500, 500);
+        Beacon beacon4 = new Beacon(504, 504, 504);
+        System.out.println(beacon1.distanceTo(beacon2));
+        System.out.println(beacon3.distanceTo(beacon4));
+        System.out.println(beacon1.distanceTo(beacon2Neg));
+    }
 }
