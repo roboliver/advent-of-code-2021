@@ -27,16 +27,10 @@ public class Cluster {
         Set<Beacon> scannersRotated = new HashSet<>();
         Set<Beacon> beaconsRotated = new HashSet<>();
         for (Beacon scanner : scanners) {
-            Beacon scannerRotated = scanner.translate(0 - xOrigin, 0 - yOrigin, 0 - zOrigin)
-                    .rotate(pitch, roll, yaw)
-                    .translate(xOrigin, yOrigin, zOrigin);
-            scannersRotated.add(scannerRotated);
+            scannersRotated.add(scanner.rotate(xOrigin, yOrigin, zOrigin, pitch, roll, yaw));
         }
         for (Beacon beacon : beacons) {
-            Beacon beaconRotated = beacon.translate(0 - xOrigin, 0 - yOrigin, 0 - zOrigin)
-                    .rotate(pitch, roll, yaw)
-                    .translate(xOrigin, yOrigin, zOrigin);
-            beaconsRotated.add(beaconRotated);
+            beaconsRotated.add(beacon.rotate(xOrigin, yOrigin, zOrigin, pitch, roll, yaw));
         }
         return new Cluster(Collections.unmodifiableSet(scannersRotated),
                 Collections.unmodifiableSet(beaconsRotated));

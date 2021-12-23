@@ -23,13 +23,14 @@ public class Beacon {
         return z;
     }
 
-    public Beacon rotate(int pitch, int roll, int yaw) {
+    public Beacon rotate(int xOrigin, int yOrigin, int zOrigin,
+                         int pitch, int roll, int yaw) {
         assertValidRotate(pitch);
         assertValidRotate(roll);
         assertValidRotate(yaw);
-        int xNew = x;
-        int yNew = y;
-        int zNew = z;
+        int xNew = x - xOrigin;
+        int yNew = y - yOrigin;
+        int zNew = z - zOrigin;
         for (int i = 0; i < pitch; i++) {
             int zTemp = xNew;
             xNew = zNew * -1;
@@ -45,8 +46,7 @@ public class Beacon {
             yNew = xNew * -1;
             xNew = xTemp;
         }
-        //System.out.println("new x: " + xNew + ", new y: " + yNew + ", new z: " + zNew);
-        return new Beacon(xNew, yNew, zNew);
+        return new Beacon(xNew + xOrigin, yNew + yOrigin, zNew + zOrigin);
     }
 
     public Beacon translate(int x, int y, int z) {
