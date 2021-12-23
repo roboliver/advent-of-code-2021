@@ -64,7 +64,7 @@ public class Beacon {
         int xDist = Math.abs(x - other.x);
         int yDist = Math.abs(y - other.y);
         int zDist = Math.abs(z - other.z);
-        return new Distance(Math.sqrt(Math.pow(xDist, 2) + Math.pow(yDist, 2) + Math.pow(zDist, 2)));
+        return new Distance(xDist, yDist, zDist);
     }
 
     @Override

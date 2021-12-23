@@ -11,6 +11,11 @@ public class MainTest {
         assertEquals(79, Main.beaconCount(Utils.inputLineReader("sample.txt")));
     }
 
+    @Test
+    public void testMaxManhattanDistance() throws IOException {
+        assertEquals(3621, Main.maxManhattanDistance(Utils.inputLineReader("sample.txt")));
+    }
+
     //@Test
     public void testPrintClusters() throws IOException {
         List<Cluster> clusters = Main.clusters(Utils.inputLineReader("sample.txt"));

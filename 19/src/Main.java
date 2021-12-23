@@ -6,16 +6,38 @@ public class Main {
     private static final int SHARED_BEACONS = 12;
     public static void main(String[] args) throws IOException {
         try (BufferedReader lineReader = Utils.inputLineReader()) {
+            long timeBefore = System.currentTimeMillis();
             System.out.println("Beacon count: " + beaconCount(lineReader));
+            long timeAfter = System.currentTimeMillis();
+            System.out.println("it took " + (timeAfter - timeBefore) + " millis.");
+        }
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
+            System.out.println("Maximum manhattan distance between beacons: " + maxManhattanDistance(lineReader));
         }
     }
 
     public static int beaconCount(BufferedReader lineReader) throws IOException {
+        return supercluster(lineReader).size();
+    }
+
+    public static int maxManhattanDistance(BufferedReader lineReader) throws IOException {
+        Cluster supercluster = supercluster(lineReader);
+        int max = 0;
+        for (Beacon beacon : supercluster.scanners()) {
+            for (Beacon beaconCompare : supercluster.scanners()) {
+                int manhattanDistance = Math.abs(beacon.x() - beaconCompare.x())
+                        + Math.abs(beacon.y() - beaconCompare.y())
+                        + Math.abs(beacon.z() - beaconCompare.z());
+                max = Math.max(max, manhattanDistance);
+            }
+        }
+        return max;
+    }
+
+    public static Cluster supercluster(BufferedReader lineReader) throws IOException {
         List<Cluster> clusters = clusters(lineReader);
         Cluster superCluster = clusters.remove(0);
         while (!clusters.isEmpty()) {
-            //System.out.println("we're here. there are " + clusters.size() + " clusters left to add.");
-            //System.out.println("current supercluster size: " + superCluster.size());
             for (int i = 0; i < clusters.size(); i++) {
                 Cluster cluster = clusters.get(i);
                 Cluster clusterToAdd = null;
@@ -31,7 +53,6 @@ public class Main {
                             }
                         }
                         if (scBeaconMatches.size() >= (SHARED_BEACONS - 1)) {
-                            //System.out.println("possible match on cluster " + i + ", beacon " + cBeacon + ", with " + scBeaconMatches.size());
                             clusterToAdd = clusterMatch(cluster, scBeacon, cBeacon, scBeaconMatches);
                             if (clusterToAdd != null) {
                                 break;
@@ -46,8 +67,7 @@ public class Main {
                     }
                 }
                 if (clusterToAdd != null) {
-                    //System.out.println("adding a cluster to the supercluster!");
-                    superCluster.addCluster(clusterToAdd);
+                    superCluster = superCluster.addCluster(clusterToAdd);
                     clusters.remove(i);
                     break;
                 }
@@ -56,11 +76,10 @@ public class Main {
                 }
             }
         }
-        return superCluster.size();
+        return superCluster;
     }
 
     private static Cluster clusterMatch(Cluster cluster, Beacon scBeacon, Beacon cBeacon, Set<Beacon> scBeaconMatches) {
-        //System.out.println("got a possible match!");
         Cluster clusterTranslated = cluster.translate(scBeacon.x() - cBeacon.x(),
                 scBeacon.y() - cBeacon.y(),
                 scBeacon.z() - cBeacon.z());
@@ -68,9 +87,7 @@ public class Main {
             for (int roll = 0; roll < 4; roll++) {
                 for (int yaw = 0; yaw < 4; yaw++) {
                     Cluster clusterRotated = clusterTranslated.rotate(scBeacon.x(), scBeacon.y(), scBeacon.z(), pitch, roll, yaw);
-                    //System.out.println("contains count : " + clusterRotated.containsCount(scBeaconMatches));
                     if (clusterRotated.containsCount(scBeaconMatches) >= SHARED_BEACONS - 1) {
-                        //System.out.println("rotated it and actually got a match!");
                         return clusterRotated;
                     }
                 }
@@ -81,27 +98,27 @@ public class Main {
 
     public static List<Cluster> clusters(BufferedReader lineReader) throws IOException {
         List<Cluster> clusters = new ArrayList<>();
-        Cluster cluster = null;
+        List<Beacon> beacons = null;
         String line;
         while ((line = lineReader.readLine()) !=  null) {
             if (line.isBlank()) {
                 // end of a cluster
-                clusters.add(cluster);
+                clusters.add(new Cluster(beacons));
             } else if (line.startsWith("---")) {
                 // start of a new cluster
-                cluster = new Cluster();
+                beacons = new ArrayList<>();
             } else {
                 // in a cluster
                 String[] coords = line.split(",");
                 int x = Integer.parseInt(coords[0]);
                 int y = Integer.parseInt(coords[1]);
                 int z = Integer.parseInt(coords[2]);
-                cluster.addBeacon(new Beacon(x, y, z));
+                beacons.add(new Beacon(x, y, z));
             }
         }
         // add the last cluster
-        if (cluster != null) {
-            clusters.add(cluster);
+        if (beacons != null) {
+            clusters.add(new Cluster(beacons));
         }
         return clusters;
     }

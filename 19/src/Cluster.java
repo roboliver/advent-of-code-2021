@@ -1,39 +1,66 @@
 import java.util.*;
 
 public class Cluster {
-    private final Set<Beacon> beacons = new HashSet<>();
+    private final Set<Beacon> beacons;
+    private final Set<Beacon> scanners;
 
-    public void addBeacon(Beacon beacon) {
-        beacons.add(Objects.requireNonNull(beacon));
+    public Cluster(Collection<Beacon> beacons) {
+        this(Set.of(new Beacon(0, 0, 0)), Set.copyOf(beacons));
     }
 
-    public void addCluster(Cluster cluster) {
-        for (Beacon beacon : cluster.beacons) {
-            addBeacon(beacon);
-        }
+    private Cluster(Set<Beacon> scanners, Set<Beacon> beacons) {
+        this.scanners = scanners;
+        this.beacons = beacons;
+    }
+
+    public Cluster addCluster(Cluster cluster) {
+        Set<Beacon> scanners = new HashSet<>();
+        scanners.addAll(this.scanners);
+        scanners.addAll(cluster.scanners);
+        Set<Beacon> beacons = new HashSet<>();
+        beacons.addAll(this.beacons);
+        beacons.addAll(cluster.beacons);
+        return new Cluster(scanners, beacons);
     }
 
     public Cluster rotate(int xOrigin, int yOrigin, int zOrigin, int pitch, int roll, int yaw) {
-        Cluster rotated = new Cluster();
+        Set<Beacon> scannersRotated = new HashSet<>();
+        Set<Beacon> beaconsRotated = new HashSet<>();
+        for (Beacon scanner : scanners) {
+            Beacon scannerRotated = scanner.translate(0 - xOrigin, 0 - yOrigin, 0 - zOrigin)
+                    .rotate(pitch, roll, yaw)
+                    .translate(xOrigin, yOrigin, zOrigin);
+            scannersRotated.add(scannerRotated);
+        }
         for (Beacon beacon : beacons) {
             Beacon beaconRotated = beacon.translate(0 - xOrigin, 0 - yOrigin, 0 - zOrigin)
                     .rotate(pitch, roll, yaw)
                     .translate(xOrigin, yOrigin, zOrigin);
-            rotated.addBeacon(beaconRotated);
+            beaconsRotated.add(beaconRotated);
         }
-        return rotated;
+        return new Cluster(Collections.unmodifiableSet(scannersRotated),
+                Collections.unmodifiableSet(beaconsRotated));
     }
 
     public Cluster translate(int x, int y, int z) {
-        Cluster translated = new Cluster();
-        for (Beacon beacon : beacons) {
-            translated.addBeacon(beacon.translate(x, y, z));
+        Set<Beacon> scannersTranslated = new HashSet<>();
+        Set<Beacon> beaconsTranslated = new HashSet<>();
+        for (Beacon scanner : scanners) {
+            scannersTranslated.add(scanner.translate(x, y, z));
         }
-        return translated;
+        for (Beacon beacon : beacons) {
+            beaconsTranslated.add(beacon.translate(x, y, z));
+        }
+        return new Cluster(Collections.unmodifiableSet(scannersTranslated),
+                Collections.unmodifiableSet(beaconsTranslated));
     }
 
     public Set<Beacon> beacons() {
         return Collections.unmodifiableSet(beacons);
+    }
+
+    public Set<Beacon> scanners() {
+        return Collections.unmodifiableSet(scanners);
     }
 
     public Set<Distance> distancesToOtherBeacons(Beacon beaconCompare) {
