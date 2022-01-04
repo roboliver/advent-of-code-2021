@@ -1,66 +1,64 @@
 import java.util.*;
 
 public class Cluster {
-    private final Set<Beacon> beacons;
-    private final Set<Beacon> scanners;
+    private final Set<Position> beacons;
+    private final Set<Position> scanners;
 
-    public Cluster(Collection<Beacon> beacons) {
-        this(Set.of(new Beacon(0, 0, 0)), Set.copyOf(beacons));
+    public Cluster(Collection<Position> beacons) {
+        this(Set.of(new Position(0, 0, 0)), Set.copyOf(beacons));
     }
 
-    private Cluster(Set<Beacon> scanners, Set<Beacon> beacons) {
-        this.scanners = scanners;
-        this.beacons = beacons;
+    private Cluster(Set<Position> scanners, Set<Position> beacons) {
+        this.scanners = Collections.unmodifiableSet(scanners);
+        this.beacons = Collections.unmodifiableSet(beacons);
     }
 
-    public Cluster addCluster(Cluster cluster) {
-        Set<Beacon> scanners = new HashSet<>();
+    public Cluster combine(Cluster cluster) {
+        Set<Position> scanners = new HashSet<>();
         scanners.addAll(this.scanners);
         scanners.addAll(cluster.scanners);
-        Set<Beacon> beacons = new HashSet<>();
+        Set<Position> beacons = new HashSet<>();
         beacons.addAll(this.beacons);
         beacons.addAll(cluster.beacons);
         return new Cluster(scanners, beacons);
     }
 
     public Cluster rotate(int xOrigin, int yOrigin, int zOrigin, int pitch, int roll, int yaw) {
-        Set<Beacon> scannersRotated = new HashSet<>();
-        Set<Beacon> beaconsRotated = new HashSet<>();
-        for (Beacon scanner : scanners) {
+        Set<Position> scannersRotated = new HashSet<>();
+        Set<Position> beaconsRotated = new HashSet<>();
+        for (Position scanner : scanners) {
             scannersRotated.add(scanner.rotate(xOrigin, yOrigin, zOrigin, pitch, roll, yaw));
         }
-        for (Beacon beacon : beacons) {
+        for (Position beacon : beacons) {
             beaconsRotated.add(beacon.rotate(xOrigin, yOrigin, zOrigin, pitch, roll, yaw));
         }
-        return new Cluster(Collections.unmodifiableSet(scannersRotated),
-                Collections.unmodifiableSet(beaconsRotated));
+        return new Cluster(scannersRotated, beaconsRotated);
     }
 
     public Cluster translate(int x, int y, int z) {
-        Set<Beacon> scannersTranslated = new HashSet<>();
-        Set<Beacon> beaconsTranslated = new HashSet<>();
-        for (Beacon scanner : scanners) {
+        Set<Position> scannersTranslated = new HashSet<>();
+        Set<Position> beaconsTranslated = new HashSet<>();
+        for (Position scanner : scanners) {
             scannersTranslated.add(scanner.translate(x, y, z));
         }
-        for (Beacon beacon : beacons) {
+        for (Position beacon : beacons) {
             beaconsTranslated.add(beacon.translate(x, y, z));
         }
-        return new Cluster(Collections.unmodifiableSet(scannersTranslated),
-                Collections.unmodifiableSet(beaconsTranslated));
+        return new Cluster(scannersTranslated, beaconsTranslated);
     }
 
-    public Set<Beacon> beacons() {
-        return Collections.unmodifiableSet(beacons);
+    public Set<Position> beacons() {
+        return beacons;
     }
 
-    public Set<Beacon> scanners() {
-        return Collections.unmodifiableSet(scanners);
+    public Set<Position> scanners() {
+        return scanners;
     }
 
-    public Set<Distance> distancesToOtherBeacons(Beacon beaconCompare) {
+    public Set<Distance> distancesToOtherBeacons(Position beaconCompare) {
         assertContainsBeacon(beaconCompare);
         Set<Distance> distances = new HashSet<>();
-        for (Beacon beacon : beacons) {
+        for (Position beacon : beacons) {
             if (!beacon.equals(beaconCompare)) {
                 distances.add(beacon.distanceTo(beaconCompare));
             }
@@ -68,10 +66,10 @@ public class Cluster {
         return distances;
     }
 
-    public Map<Beacon, Distance> otherBeaconDistances(Beacon beaconCompare) {
+    public Map<Position, Distance> otherBeaconDistances(Position beaconCompare) {
         assertContainsBeacon(beaconCompare);
-        Map<Beacon, Distance> beaconsByDistance = new HashMap<>();
-        for (Beacon beacon : beacons) {
+        Map<Position, Distance> beaconsByDistance = new HashMap<>();
+        for (Position beacon : beacons) {
             if (!beacon.equals(beaconCompare)) {
                 beaconsByDistance.put(beacon, beacon.distanceTo(beaconCompare));
             }
@@ -79,16 +77,16 @@ public class Cluster {
         return beaconsByDistance;
     }
 
-    private void assertContainsBeacon(Beacon beacon) {
+    private void assertContainsBeacon(Position beacon) {
         if (!beacons.contains(beacon)) {
             throw new IllegalArgumentException("this cluster must contain the specified beacon");
         }
     }
 
-    public int containsCount(Set<Beacon> beaconsCheck) {
+    public int containsCount(Set<Position> beaconsCheck) {
         //System.out.println("checking " + beaconsCheck + " beacons.");
         int count = 0;
-        for (Beacon beacon : beaconsCheck) {
+        for (Position beacon : beaconsCheck) {
             //System.out.println("checking beacon " + beacon);
             if (beacons.contains(beacon)) {
                 count++;
@@ -104,7 +102,7 @@ public class Cluster {
     @Override
     public String toString() {
         StringBuilder buf = new StringBuilder();
-        for (Beacon beacon : beacons) {
+        for (Position beacon : beacons) {
             if (buf.length() > 0) {
                 buf.append('\n');
             }

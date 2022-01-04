@@ -1,11 +1,11 @@
 import java.util.Arrays;
 
-public class Beacon {
+public class Position {
     private final int x;
     private final int y;
     private final int z;
 
-    public Beacon(int x, int y, int z) {
+    public Position(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -23,8 +23,8 @@ public class Beacon {
         return z;
     }
 
-    public Beacon rotate(int xOrigin, int yOrigin, int zOrigin,
-                         int pitch, int roll, int yaw) {
+    public Position rotate(int xOrigin, int yOrigin, int zOrigin,
+                           int pitch, int roll, int yaw) {
         assertValidRotate(pitch);
         assertValidRotate(roll);
         assertValidRotate(yaw);
@@ -46,11 +46,11 @@ public class Beacon {
             yNew = xNew * -1;
             xNew = xTemp;
         }
-        return new Beacon(xNew + xOrigin, yNew + yOrigin, zNew + zOrigin);
+        return new Position(xNew + xOrigin, yNew + yOrigin, zNew + zOrigin);
     }
 
-    public Beacon translate(int x, int y, int z) {
-        return new Beacon(this.x + x, this.y + y, this.z + z);
+    public Position translate(int x, int y, int z) {
+        return new Position(this.x + x, this.y + y, this.z + z);
     }
 
     private static int assertValidRotate(int rotate) {
@@ -60,7 +60,7 @@ public class Beacon {
         return rotate;
     }
 
-    public Distance distanceTo(Beacon other) {
+    public Distance distanceTo(Position other) {
         int xDist = Math.abs(x - other.x);
         int yDist = Math.abs(y - other.y);
         int zDist = Math.abs(z - other.z);
@@ -71,12 +71,12 @@ public class Beacon {
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
-        } else if (!(obj instanceof Beacon)) {
+        } else if (!(obj instanceof Position)) {
             return false;
         } else {
-            return this.x == ((Beacon) obj).x
-                    && this.y == ((Beacon) obj).y
-                    && this.z == ((Beacon) obj).z;
+            return this.x == ((Position) obj).x
+                    && this.y == ((Position) obj).y
+                    && this.z == ((Position) obj).z;
         }
     }
 

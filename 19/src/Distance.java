@@ -1,5 +1,10 @@
 import java.util.Arrays;
 
+/**
+ * A class representing a Manhattan distance: three absolute distances, one for each dimension, but without the
+ * dimension each corresponds to being retained. This means that the {@code Distance} between two {@code Position}s will
+ * be the same regardless of what orientation (in 90 degree increments) the points are being compared at.
+ */
 public class Distance {
     private int[] distances;
 

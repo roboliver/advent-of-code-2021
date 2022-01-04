@@ -23,8 +23,8 @@ public class Main {
     public static int maxManhattanDistance(BufferedReader lineReader) throws IOException {
         Cluster supercluster = supercluster(lineReader);
         int max = 0;
-        for (Beacon beacon : supercluster.scanners()) {
-            for (Beacon beaconCompare : supercluster.scanners()) {
+        for (Position beacon : supercluster.scanners()) {
+            for (Position beaconCompare : supercluster.scanners()) {
                 int manhattanDistance = Math.abs(beacon.x() - beaconCompare.x())
                         + Math.abs(beacon.y() - beaconCompare.y())
                         + Math.abs(beacon.z() - beaconCompare.z());
@@ -36,29 +36,36 @@ public class Main {
 
     public static Cluster supercluster(BufferedReader lineReader) throws IOException {
         List<Cluster> clusters = clusters(lineReader);
+        List<Cluster> scClusters = new ArrayList<>();
         Cluster superCluster = clusters.remove(0);
+        scClusters.add(superCluster);
         while (!clusters.isEmpty()) {
             for (int i = 0; i < clusters.size(); i++) {
                 Cluster cluster = clusters.get(i);
                 Cluster clusterToAdd = null;
-                for (Beacon scBeacon : superCluster.beacons()) {
-                    Map<Beacon, Distance> scBeaconDistances = superCluster.otherBeaconDistances(scBeacon);
-                    int cBeaconsTried = 0;
-                    for (Beacon cBeacon : cluster.beacons()) {
-                        Set<Distance> cDistances = cluster.distancesToOtherBeacons(cBeacon);
-                        Set<Beacon> scBeaconMatches = new HashSet<>();
-                        for (Map.Entry<Beacon, Distance> scBeaconDistance : scBeaconDistances.entrySet()) {
-                            if (cDistances.contains(scBeaconDistance.getValue())) {
-                                scBeaconMatches.add(scBeaconDistance.getKey());
+                for (Cluster scCluster : scClusters) {
+                    for (Position scBeacon : scCluster.beacons()) {
+                        Map<Position, Distance> scDistances = scCluster.otherBeaconDistances(scBeacon);
+                        int cBeaconsTried = 0;
+                        for (Position cBeacon : cluster.beacons()) {
+                            Set<Distance> cDistances = cluster.distancesToOtherBeacons(cBeacon);
+                            Set<Position> scMatches = new HashSet<>();
+                            for (Map.Entry<Position, Distance> scDistance : scDistances.entrySet()) {
+                                if (cDistances.contains(scDistance.getValue())) {
+                                    scMatches.add(scDistance.getKey());
+                                }
                             }
-                        }
-                        if (scBeaconMatches.size() >= (SHARED_BEACONS - 1)) {
-                            clusterToAdd = clusterMatch(cluster, scBeacon, cBeacon, scBeaconMatches);
-                            if (clusterToAdd != null) {
+                            if (scMatches.size() >= (SHARED_BEACONS - 1)) {
+                                clusterToAdd = clusterMatch(cluster, scBeacon, cBeacon, scMatches);
+                                if (clusterToAdd != null) {
+                                    break;
+                                }
+                            }
+                            if (cBeaconsTried == cluster.size() - (SHARED_BEACONS - 1)) {
                                 break;
                             }
                         }
-                        if (cBeaconsTried == cluster.size() - (SHARED_BEACONS - 1)) {
+                        if (clusterToAdd != null) {
                             break;
                         }
                     }
@@ -67,7 +74,8 @@ public class Main {
                     }
                 }
                 if (clusterToAdd != null) {
-                    superCluster = superCluster.addCluster(clusterToAdd);
+                    superCluster = superCluster.combine(clusterToAdd);
+                    scClusters.add(clusterToAdd);
                     clusters.remove(i);
                     break;
                 }
@@ -79,7 +87,7 @@ public class Main {
         return superCluster;
     }
 
-    private static Cluster clusterMatch(Cluster cluster, Beacon scBeacon, Beacon cBeacon, Set<Beacon> scBeaconMatches) {
+    private static Cluster clusterMatch(Cluster cluster, Position scBeacon, Position cBeacon, Set<Position> scMatches) {
         Cluster clusterTranslated = cluster.translate(scBeacon.x() - cBeacon.x(),
                 scBeacon.y() - cBeacon.y(),
                 scBeacon.z() - cBeacon.z());
@@ -87,7 +95,7 @@ public class Main {
             for (int roll = 0; roll < 4; roll++) {
                 for (int yaw = 0; yaw < 4; yaw++) {
                     Cluster clusterRotated = clusterTranslated.rotate(scBeacon.x(), scBeacon.y(), scBeacon.z(), pitch, roll, yaw);
-                    if (clusterRotated.containsCount(scBeaconMatches) >= SHARED_BEACONS - 1) {
+                    if (clusterRotated.containsCount(scMatches) >= SHARED_BEACONS - 1) {
                         return clusterRotated;
                     }
                 }
@@ -98,7 +106,7 @@ public class Main {
 
     public static List<Cluster> clusters(BufferedReader lineReader) throws IOException {
         List<Cluster> clusters = new ArrayList<>();
-        List<Beacon> beacons = null;
+        List<Position> beacons = null;
         String line;
         while ((line = lineReader.readLine()) !=  null) {
             if (line.isBlank()) {
@@ -113,7 +121,7 @@ public class Main {
                 int x = Integer.parseInt(coords[0]);
                 int y = Integer.parseInt(coords[1]);
                 int z = Integer.parseInt(coords[2]);
-                beacons.add(new Beacon(x, y, z));
+                beacons.add(new Position(x, y, z));
             }
         }
         // add the last cluster
