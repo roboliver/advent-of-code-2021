@@ -68,13 +68,13 @@ public class Cluster {
 
     public Map<Position, Distance> otherBeaconDistances(Position beaconCompare) {
         assertContainsBeacon(beaconCompare);
-        Map<Position, Distance> beaconsByDistance = new HashMap<>();
+        Map<Position, Distance> beaconDistances = new HashMap<>();
         for (Position beacon : beacons) {
             if (!beacon.equals(beaconCompare)) {
-                beaconsByDistance.put(beacon, beacon.distanceTo(beaconCompare));
+                beaconDistances.put(beacon, beacon.distanceTo(beaconCompare));
             }
         }
-        return beaconsByDistance;
+        return beaconDistances;
     }
 
     private void assertContainsBeacon(Position beacon) {

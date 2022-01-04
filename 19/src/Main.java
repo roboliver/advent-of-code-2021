@@ -34,57 +34,64 @@ public class Main {
         return max;
     }
 
-    public static Cluster supercluster(BufferedReader lineReader) throws IOException {
+    private static Cluster supercluster(BufferedReader lineReader) throws IOException {
         List<Cluster> clusters = clusters(lineReader);
+        // build the clusters up into a single supercluster, which has all clusters correctly oriented and positioned,
+        // with overlapping beacons deduplicated
         List<Cluster> scClusters = new ArrayList<>();
-        Cluster superCluster = clusters.remove(0);
-        scClusters.add(superCluster);
+        Cluster supercluster = clusters.remove(0);
+        scClusters.add(supercluster);
         while (!clusters.isEmpty()) {
-            for (int i = 0; i < clusters.size(); i++) {
-                Cluster cluster = clusters.get(i);
-                Cluster clusterToAdd = null;
-                for (Cluster scCluster : scClusters) {
-                    for (Position scBeacon : scCluster.beacons()) {
-                        Map<Position, Distance> scDistances = scCluster.otherBeaconDistances(scBeacon);
-                        int cBeaconsTried = 0;
-                        for (Position cBeacon : cluster.beacons()) {
-                            Set<Distance> cDistances = cluster.distancesToOtherBeacons(cBeacon);
-                            Set<Position> scMatches = new HashSet<>();
-                            for (Map.Entry<Position, Distance> scDistance : scDistances.entrySet()) {
-                                if (cDistances.contains(scDistance.getValue())) {
-                                    scMatches.add(scDistance.getKey());
-                                }
-                            }
-                            if (scMatches.size() >= (SHARED_BEACONS - 1)) {
-                                clusterToAdd = clusterMatch(cluster, scBeacon, cBeacon, scMatches);
-                                if (clusterToAdd != null) {
-                                    break;
-                                }
-                            }
-                            if (cBeaconsTried == cluster.size() - (SHARED_BEACONS - 1)) {
-                                break;
-                            }
-                        }
-                        if (clusterToAdd != null) {
-                            break;
+            Cluster clusterToAdd = extractClusterToAdd(clusters, scClusters);
+            supercluster = supercluster.combine(clusterToAdd);
+            scClusters.add(clusterToAdd);
+        }
+        return supercluster;
+    }
+
+    private static Cluster extractClusterToAdd(List<Cluster> clusters, List<Cluster> scClusters) {
+        // find a cluster we can add, align it with the supercluster, remove it from the cluster list, and return it
+        for (int i = 0; i < clusters.size(); i++) {
+            Cluster cluster = clusters.get(i);
+            Cluster clusterToAdd = clusterAlign(scClusters, cluster);
+            if (clusterToAdd != null) {
+                clusters.remove(i);
+                return clusterToAdd;
+            }
+        }
+        throw new IllegalStateException("couldn't merge any of the clusters into the supercluster");
+    }
+
+    private static Cluster clusterAlign(List<Cluster> scClusters, Cluster cluster) {
+        // try each cluster within the supercluster to see if matches the cluster we're trying to add
+        for (Cluster scCluster : scClusters) {
+            // try each beacon in the supercluster in turn, initially just checking the beacon's distances to the other
+            // beacons -- once we find sufficiently large set of matching distances, we will ensure that there's a way
+            // to align the candidate cluster such that enough beacons overlap
+            for (Position scBeacon : scCluster.beacons()) {
+                Map<Position, Distance> scDistances = scCluster.otherBeaconDistances(scBeacon);
+                int cBeaconsTried = 0;
+                for (Position cBeacon : cluster.beacons()) {
+                    Set<Distance> cDistances = cluster.distancesToOtherBeacons(cBeacon);
+                    Set<Position> scMatches = new HashSet<>();
+                    for (Map.Entry<Position, Distance> scDistance : scDistances.entrySet()) {
+                        if (cDistances.contains(scDistance.getValue())) {
+                            scMatches.add(scDistance.getKey());
                         }
                     }
-                    if (clusterToAdd != null) {
+                    if (scMatches.size() >= (SHARED_BEACONS - 1)) {
+                        Cluster clusterToAdd = clusterMatch(cluster, scBeacon, cBeacon, scMatches);
+                        if (clusterToAdd != null) {
+                            return clusterToAdd;
+                        }
+                    }
+                    if (cBeaconsTried == cluster.size() - (SHARED_BEACONS - 1)) {
                         break;
                     }
                 }
-                if (clusterToAdd != null) {
-                    superCluster = superCluster.combine(clusterToAdd);
-                    scClusters.add(clusterToAdd);
-                    clusters.remove(i);
-                    break;
-                }
-                else if (i == clusters.size() - 1) {
-                    throw new IllegalStateException("couldn't merge any of the clusters into the supercluster");
-                }
             }
         }
-        return superCluster;
+        return null;
     }
 
     private static Cluster clusterMatch(Cluster cluster, Position scBeacon, Position cBeacon, Set<Position> scMatches) {
