@@ -1,5 +1,8 @@
 import java.util.Arrays;
 
+/**
+ * Represents a 3D point floating in the ocean. Used for both beacons and scanners.
+ */
 public class Position {
     private final int x;
     private final int y;
@@ -53,11 +56,10 @@ public class Position {
         return new Position(this.x + x, this.y + y, this.z + z);
     }
 
-    private static int assertValidRotate(int rotate) {
+    private static void assertValidRotate(int rotate) {
         if (rotate < 0 || rotate > 3) {
             throw new IllegalArgumentException("rotation value must be between 0 and 3");
         }
-        return rotate;
     }
 
     public Distance distanceTo(Position other) {
@@ -88,6 +90,6 @@ public class Position {
 
     @Override
     public String toString() {
-        return ("[" + x + "," + y + "," + z + "]");
+        return ("[" + x + ", " + y + ", " + z + "]");
     }
 }

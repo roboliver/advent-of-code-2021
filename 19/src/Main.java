@@ -69,17 +69,17 @@ public class Main {
             // beacons -- once we find a sufficiently large set of matching distances, we will ensure that there's a way
             // to align the candidate cluster such that enough beacons overlap
             for (Position scBeacon : scCluster.beacons()) {
-                Map<Position, Distance> scDistances = scCluster.distancesToOtherBeacons(scBeacon);
+                Map<Position, Distance> scDistances = scCluster.distancesToBeaconsByBeacon(scBeacon);
                 int cBeaconsTried = 0;
                 for (Position cBeacon : cluster.beacons()) {
-                    Set<Distance> cDistances = new HashSet<>(cluster.distancesToOtherBeacons(cBeacon).values());
+                    Set<Distance> cDistances = cluster.distancesToBeacons(cBeacon);
                     Set<Position> scMatches = new HashSet<>();
                     for (Map.Entry<Position, Distance> scDistance : scDistances.entrySet()) {
                         if (cDistances.contains(scDistance.getValue())) {
                             scMatches.add(scDistance.getKey());
                         }
                     }
-                    if (scMatches.size() >= (SHARED_BEACONS - 1)) {
+                    if (scMatches.size() >= SHARED_BEACONS) {
                         // we've got enough distance matches for this to plausibly be a true match, so see if there's a
                         // way to orient the cluster to create one
                         Cluster clusterToAdd = clusterAlign(cluster, scBeacon, cBeacon, scMatches);
@@ -111,7 +111,7 @@ public class Main {
             for (int roll = 0; roll < 4; roll++) {
                 for (int yaw = 0; yaw < 4; yaw++) {
                     Cluster clusterRotated = clusterTranslated.rotate(scBeacon.x(), scBeacon.y(), scBeacon.z(), pitch, roll, yaw);
-                    if (clusterRotated.containsCount(scMatches) >= SHARED_BEACONS - 1) {
+                    if (clusterRotated.containsCount(scMatches) >= SHARED_BEACONS) {
                         return clusterRotated;
                     }
                 }

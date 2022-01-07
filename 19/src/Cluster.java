@@ -55,14 +55,20 @@ public class Cluster {
         return scanners;
     }
 
-    public Map<Position, Distance> distancesToOtherBeacons(Position beaconCompare) {
-        Map<Position, Distance> beaconDistances = new HashMap<>();
+    public Set<Distance> distancesToBeacons(Position beaconCompare) {
+        Set<Distance> distances = new HashSet<>();
         for (Position beacon : beacons) {
-            if (!beacon.equals(beaconCompare)) {
-                beaconDistances.put(beacon, beacon.distanceTo(beaconCompare));
-            }
+            distances.add(beacon.distanceTo(beaconCompare));
         }
-        return beaconDistances;
+        return distances;
+    }
+
+    public Map<Position, Distance> distancesToBeaconsByBeacon(Position beaconCompare) {
+        Map<Position, Distance> distances = new HashMap<>();
+        for (Position beacon : beacons) {
+            distances.put(beacon, beacon.distanceTo(beaconCompare));
+        }
+        return distances;
     }
 
     public int containsCount(Set<Position> beaconsCheck) {

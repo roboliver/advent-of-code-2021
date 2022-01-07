@@ -6,7 +6,7 @@ import java.util.Arrays;
  * be the same regardless of what orientation (in 90 degree increments) the points are being compared at.
  */
 public class Distance {
-    private int[] distances;
+    private final int[] distances;
 
     public Distance(int x, int y, int z) {
         int[] distances = new int[]{x, y, z};
