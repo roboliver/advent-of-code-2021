@@ -53,7 +53,7 @@ public class Main {
         // find a cluster we can add, align it with the supercluster, remove it from the cluster list, and return it
         for (int i = 0; i < clusters.size(); i++) {
             Cluster cluster = clusters.get(i);
-            Cluster clusterToAdd = clusterAlign(scClusters, cluster);
+            Cluster clusterToAdd = clusterMatch(scClusters, cluster);
             if (clusterToAdd != null) {
                 clusters.remove(i);
                 return clusterToAdd;
@@ -62,17 +62,17 @@ public class Main {
         throw new IllegalStateException("couldn't merge any of the clusters into the supercluster");
     }
 
-    private static Cluster clusterAlign(List<Cluster> scClusters, Cluster cluster) {
-        // try each cluster within the supercluster to see if matches the cluster we're trying to add
+    private static Cluster clusterMatch(List<Cluster> scClusters, Cluster cluster) {
+        // try each cluster within the supercluster to see if overlaps the cluster we're trying to add
         for (Cluster scCluster : scClusters) {
             // try each beacon in the supercluster in turn, initially just checking the beacon's distances to the other
-            // beacons -- once we find sufficiently large set of matching distances, we will ensure that there's a way
+            // beacons -- once we find a sufficiently large set of matching distances, we will ensure that there's a way
             // to align the candidate cluster such that enough beacons overlap
             for (Position scBeacon : scCluster.beacons()) {
-                Map<Position, Distance> scDistances = scCluster.otherBeaconDistances(scBeacon);
+                Map<Position, Distance> scDistances = scCluster.distancesToOtherBeacons(scBeacon);
                 int cBeaconsTried = 0;
                 for (Position cBeacon : cluster.beacons()) {
-                    Set<Distance> cDistances = cluster.distancesToOtherBeacons(cBeacon);
+                    Set<Distance> cDistances = new HashSet<>(cluster.distancesToOtherBeacons(cBeacon).values());
                     Set<Position> scMatches = new HashSet<>();
                     for (Map.Entry<Position, Distance> scDistance : scDistances.entrySet()) {
                         if (cDistances.contains(scDistance.getValue())) {
@@ -80,12 +80,17 @@ public class Main {
                         }
                     }
                     if (scMatches.size() >= (SHARED_BEACONS - 1)) {
-                        Cluster clusterToAdd = clusterMatch(cluster, scBeacon, cBeacon, scMatches);
+                        // we've got enough distance matches for this to plausibly be a true match, so see if there's a
+                        // way to orient the cluster to create one
+                        Cluster clusterToAdd = clusterAlign(cluster, scBeacon, cBeacon, scMatches);
                         if (clusterToAdd != null) {
                             return clusterToAdd;
                         }
                     }
                     if (cBeaconsTried == cluster.size() - (SHARED_BEACONS - 1)) {
+                        // no point in trying more beacons -- if the supercluster beacon we are trying corresponded to
+                        // a beacon in the candidate cluster, we would have found it by now, so give up and move on to
+                        // the next supercluster beacon
                         break;
                     }
                 }
@@ -94,10 +99,14 @@ public class Main {
         return null;
     }
 
-    private static Cluster clusterMatch(Cluster cluster, Position scBeacon, Position cBeacon, Set<Position> scMatches) {
+    private static Cluster clusterAlign(Cluster cluster, Position scBeacon, Position cBeacon, Set<Position> scMatches) {
+        // reposition the candidate cluster so that the beacon it potentially shares with the supercluster is aligned
+        // with that beacon in the supercluster
         Cluster clusterTranslated = cluster.translate(scBeacon.x() - cBeacon.x(),
                 scBeacon.y() - cBeacon.y(),
                 scBeacon.z() - cBeacon.z());
+        // try every orientation of the cluster to see if any of them result in enough of the supercluster beacons
+        // overlapping it
         for (int pitch = 0; pitch < 4; pitch++) {
             for (int roll = 0; roll < 4; roll++) {
                 for (int yaw = 0; yaw < 4; yaw++) {

@@ -55,19 +55,7 @@ public class Cluster {
         return scanners;
     }
 
-    public Set<Distance> distancesToOtherBeacons(Position beaconCompare) {
-        assertContainsBeacon(beaconCompare);
-        Set<Distance> distances = new HashSet<>();
-        for (Position beacon : beacons) {
-            if (!beacon.equals(beaconCompare)) {
-                distances.add(beacon.distanceTo(beaconCompare));
-            }
-        }
-        return distances;
-    }
-
-    public Map<Position, Distance> otherBeaconDistances(Position beaconCompare) {
-        assertContainsBeacon(beaconCompare);
+    public Map<Position, Distance> distancesToOtherBeacons(Position beaconCompare) {
         Map<Position, Distance> beaconDistances = new HashMap<>();
         for (Position beacon : beacons) {
             if (!beacon.equals(beaconCompare)) {
@@ -77,17 +65,9 @@ public class Cluster {
         return beaconDistances;
     }
 
-    private void assertContainsBeacon(Position beacon) {
-        if (!beacons.contains(beacon)) {
-            throw new IllegalArgumentException("this cluster must contain the specified beacon");
-        }
-    }
-
     public int containsCount(Set<Position> beaconsCheck) {
-        //System.out.println("checking " + beaconsCheck + " beacons.");
         int count = 0;
         for (Position beacon : beaconsCheck) {
-            //System.out.println("checking beacon " + beacon);
             if (beacons.contains(beacon)) {
                 count++;
             }
