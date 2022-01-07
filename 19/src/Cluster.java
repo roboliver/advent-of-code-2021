@@ -1,5 +1,10 @@
 import java.util.*;
 
+/**
+ * A set of beacons and scanners. These will initially be created from the input, with each cluster containing one
+ * scanner (at position 0, 0, 0) and its surrounding beacons, but clusters can be translated, rotated, and merged, to
+ * create clusters with multiple scanners, and scanners at positions other than the origin.
+ */
 public class Cluster {
     private final Set<Position> beacons;
     private final Set<Position> scanners;
