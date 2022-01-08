@@ -63,18 +63,18 @@ public class Main {
     }
 
     private static Cluster clusterMatch(List<Cluster> scClusters, Cluster cluster) {
-        Set<Distance> cDistancesAll = cluster.distancesBetweenBeaconsAllDeduplicated();
+        Set<Distance> cDistancesAll = cluster.distancesBetweenAllBeaconsDeduplicated();
         // try each cluster within the supercluster to see if overlaps the cluster we're trying to add
         for (Cluster scCluster : scClusters) {
             if (!enoughSharedDistances(cDistancesAll, scCluster)) {
-                // first make sure the supercluster cluster actually has enough distances in common with the cluster to
-                // be worth checking (i.e. the distances between the 12 shared beacons) -- if it doesn't, immediately
-                // move on to the next supercluster cluster
+                // first make sure the supercluster cluster actually has enough distances in common with the candidate
+                // cluster to be worth checking (i.e. the distances between the 12 shared beacons, if present) -- if it
+                // doesn't, immediately move on to the next supercluster cluster
                 continue;
             }
-            // try each beacon in the supercluster in turn, initially just checking the beacon's distances to the other
-            // beacons -- once we find a sufficiently large set of matching distances, we will ensure that there's a way
-            // to align the candidate cluster such that enough beacons overlap
+            // try each beacon in the supercluster cluster in turn, initially just checking the beacon's distances to
+            // the other beacons -- once we find a sufficiently large set of matching distances, we will ensure that
+            // there's a way to align the candidate cluster such that enough beacons overlap
             for (Position scBeacon : scCluster.beacons()) {
                 Map<Position, Distance> scDistances = scCluster.distancesToBeaconsByBeacon(scBeacon);
                 int cBeaconsTried = 0;
@@ -107,7 +107,7 @@ public class Main {
     }
 
     private static boolean enoughSharedDistances(Set<Distance> cDistancesAll, Cluster scCluster) {
-        List<Distance> scDistancesAll = scCluster.distancesBetweenBeaconsAll();
+        List<Distance> scDistancesAll = scCluster.distancesBetweenAllBeacons();
         int sharedDistances = 0;
         for (Distance scDistance : scDistancesAll) {
             if (cDistancesAll.contains(scDistance)) {

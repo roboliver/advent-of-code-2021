@@ -60,7 +60,7 @@ public class Cluster {
         return scanners;
     }
 
-    public Set<Distance> distancesBetweenBeaconsAllDeduplicated() {
+    public Set<Distance> distancesBetweenAllBeaconsDeduplicated() {
         Set<Distance> distances = new HashSet<>();
         for (Position beacon : beacons) {
             distances.addAll(distancesToBeaconsDeduplicated(beacon));
@@ -68,7 +68,7 @@ public class Cluster {
         return distances;
     }
 
-    public List<Distance> distancesBetweenBeaconsAll() {
+    public List<Distance> distancesBetweenAllBeacons() {
         List<Distance> distances = new ArrayList<>();
         for (Position beacon : beacons) {
             distances.addAll(distancesToBeaconsByBeacon(beacon).values());
