@@ -77,6 +77,7 @@ public class Main {
         for (int i = 0; i < imageList.size(); i++) {
             image[i] = imageList.get(i);
         }
+        lineReader.close();
         return image;
     }
 
