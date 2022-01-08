@@ -60,7 +60,23 @@ public class Cluster {
         return scanners;
     }
 
-    public Set<Distance> distancesToBeacons(Position beaconCompare) {
+    public Set<Distance> distancesBetweenBeaconsAllDeduplicated() {
+        Set<Distance> distances = new HashSet<>();
+        for (Position beacon : beacons) {
+            distances.addAll(distancesToBeaconsDeduplicated(beacon));
+        }
+        return distances;
+    }
+
+    public List<Distance> distancesBetweenBeaconsAll() {
+        List<Distance> distances = new ArrayList<>();
+        for (Position beacon : beacons) {
+            distances.addAll(distancesToBeaconsByBeacon(beacon).values());
+        }
+        return distances;
+    }
+
+    public Set<Distance> distancesToBeaconsDeduplicated(Position beaconCompare) {
         Set<Distance> distances = new HashSet<>();
         for (Position beacon : beacons) {
             distances.add(beacon.distanceTo(beaconCompare));
