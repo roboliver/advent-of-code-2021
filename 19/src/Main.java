@@ -77,7 +77,6 @@ public class Main {
             // there's a way to align the candidate cluster such that enough beacons overlap
             for (Position scBeacon : scCluster.beacons()) {
                 Map<Position, Distance> scDistances = scCluster.distancesToBeaconsByBeacon(scBeacon);
-                int cBeaconsTried = 0;
                 for (Position cBeacon : cluster.beacons()) {
                     Set<Distance> cDistances = cluster.distancesToBeaconsDeduplicated(cBeacon);
                     Set<Position> scMatches = new HashSet<>();
@@ -93,12 +92,6 @@ public class Main {
                         if (clusterToAdd != null) {
                             return clusterToAdd;
                         }
-                    }
-                    if (cBeaconsTried == cluster.size() - (SHARED_BEACONS - 1)) {
-                        // no point in trying more beacons -- if the supercluster beacon we are trying corresponded to
-                        // a beacon in the candidate cluster, we would have found it by now, so give up and move on to
-                        // the next supercluster beacon
-                        break;
                     }
                 }
             }
