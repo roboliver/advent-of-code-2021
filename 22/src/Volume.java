@@ -100,9 +100,9 @@ public class Volume {
     }
 
     private boolean overlaps(Volume other) {
-        return (other.xMin >= xMin && other.xMin <= xMax || other.xMax >= xMin && other.xMax <= xMax)
-                && (other.yMin >= yMin && other.yMin <= yMax || other.yMax >= yMin && other.yMax <= yMax)
-                && (other.zMin >= zMin && other.zMin <= zMax || other.zMax >= zMin && other.zMax <= zMax);
+        return other.xMax >= xMin && other.xMin <= xMax
+                && other.yMax >= yMin && other.yMin <= yMax
+                && other.zMax >= zMin && other.zMin <= zMax;
     }
 
     private boolean subsumes(Volume other) {
@@ -134,5 +134,10 @@ public class Volume {
     public int hashCode() {
         int[] vals = {xMin, yMin, zMin, xMax, yMax, zMax};
         return Arrays.hashCode(vals);
+    }
+
+    @Override
+    public String toString() {
+        return "x=" + xMin + ".." + xMax + ",y=" + yMin + ".." + yMax + ",z=" + zMin + ".." + zMax;
     }
 }
