@@ -199,4 +199,57 @@ public class VolumeTest {
         assertEquals(1, differenceNull.size());
         assertTrue(differenceNull.contains(new Volume(5, 5, 5, 200, 200, 200)));
     }
+
+    @Test
+    public void testSubdivideEven() {
+        Volume v = new Volume(0, 0, 0, 9, 9, 9);
+        List<Volume> subVolumes = v.subdivide();
+        assertEquals(8, subVolumes.size());
+        assertTrue(subVolumes.contains(new Volume(0, 0, 0, 4, 4, 4)));
+        assertTrue(subVolumes.contains(new Volume(0, 0, 5, 4, 4, 9)));
+        assertTrue(subVolumes.contains(new Volume(0, 5, 0, 4, 9, 4)));
+        assertTrue(subVolumes.contains(new Volume(0, 5, 5, 4, 9, 9)));
+        assertTrue(subVolumes.contains(new Volume(5, 0, 0, 9, 4, 4)));
+        assertTrue(subVolumes.contains(new Volume(5, 0, 5, 9, 4, 9)));
+        assertTrue(subVolumes.contains(new Volume(5, 5, 0, 9, 9, 4)));
+        assertTrue(subVolumes.contains(new Volume(5, 5, 5, 9, 9, 9)));
+    }
+
+    @Test
+    public void testSubdivideOdd() {
+        Volume v = new Volume(0, 0, 0, 8, 8, 8);
+        List<Volume> subVolumes = v.subdivide();
+        assertEquals(8, subVolumes.size());
+        assertTrue(subVolumes.contains(new Volume(0, 0, 0, 3, 3, 3)));
+        assertTrue(subVolumes.contains(new Volume(0, 0, 4, 3, 3, 8)));
+        assertTrue(subVolumes.contains(new Volume(0, 4, 0, 3, 8, 3)));
+        assertTrue(subVolumes.contains(new Volume(0, 4, 4, 3, 8, 8)));
+        assertTrue(subVolumes.contains(new Volume(4, 0, 0, 8, 3, 3)));
+        assertTrue(subVolumes.contains(new Volume(4, 0, 4, 8, 3, 8)));
+        assertTrue(subVolumes.contains(new Volume(4, 4, 0, 8, 8, 3)));
+        assertTrue(subVolumes.contains(new Volume(4, 4, 4, 8, 8, 8)));
+    }
+
+    @Test
+    public void testSubdivideTwoByTwo() {
+        Volume v = new Volume(5, 5, 5, 6, 6, 6);
+        List<Volume> subVolumes = v.subdivide();
+        assertEquals(8, subVolumes.size());
+        assertTrue(subVolumes.contains(new Volume(5, 5, 5, 5, 5, 5)));
+        assertTrue(subVolumes.contains(new Volume(5, 5, 6, 5, 5, 6)));
+        assertTrue(subVolumes.contains(new Volume(5, 6, 5, 5, 6, 5)));
+        assertTrue(subVolumes.contains(new Volume(5, 6, 6, 5, 6, 6)));
+        assertTrue(subVolumes.contains(new Volume(6, 5, 5, 6, 5, 5)));
+        assertTrue(subVolumes.contains(new Volume(6, 5, 6, 6, 5, 6)));
+        assertTrue(subVolumes.contains(new Volume(6, 6, 5, 6, 6, 5)));
+        assertTrue(subVolumes.contains(new Volume(6, 6, 6, 6, 6, 6)));
+    }
+
+    @Test
+    public void testSubdivideOneByOne() {
+        Volume v = new Volume(1, 1, 1, 1, 1, 1);
+        List<Volume> subVolumes = v.subdivide();
+        assertEquals(1, subVolumes.size());
+        assertTrue(subVolumes.contains(new Volume(1, 1, 1, 1, 1, 1)));
+    }
 }

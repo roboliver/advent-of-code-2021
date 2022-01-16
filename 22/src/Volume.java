@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 
 public class Volume {
     private final int xMin;
@@ -79,6 +80,27 @@ public class Volume {
         }
         assert(remaining.equals(intersection));
         return Collections.unmodifiableList(difference);
+    }
+
+    public List<Volume> subdivide() {
+        List<Volume> subVolumes = List.of(this);
+        subVolumes = subdivideOnDimension(subVolumes, xMin, xMax, (volume -> volume::xSlice));
+        subVolumes = subdivideOnDimension(subVolumes, yMin, yMax, (volume -> volume::ySlice));
+        subVolumes = subdivideOnDimension(subVolumes, xMin, xMax, (volume -> volume::zSlice));
+        return subVolumes;
+    }
+
+    private List<Volume> subdivideOnDimension(List<Volume> subVolumes, int min, int max,
+                                              Function<Volume, Function<Integer, List<Volume>>> sliceFunc) {
+        if (max - min <= 0) {
+            return subVolumes;
+        } else {
+            List<Volume> sliced = new ArrayList<>();
+            for (Volume volume : subVolumes) {
+                sliced.addAll(sliceFunc.apply(volume).apply((min + max + 1) / 2));
+            }
+            return sliced;
+        }
     }
 
     private List<Volume> xSlice(int x) {
