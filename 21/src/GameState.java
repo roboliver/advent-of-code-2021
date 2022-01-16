@@ -1,19 +1,32 @@
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class GameState {
     public enum WhichPlayer {
-        ONE((gameState, rollSum) -> new GameState(gameState.getPlayer1().haveGo(rollSum), gameState.getPlayer2())),
-        TWO((gameState, rollSum) -> new GameState(gameState.getPlayer1(), gameState.getPlayer2().haveGo(rollSum)));
+        ONE(GameState::getPlayer1,
+                (gameState, rollSum) -> new GameState(gameState.getPlayer1().haveGo(rollSum), gameState.getPlayer2())),
+        TWO(GameState::getPlayer2,
+                (gameState, rollSum) -> new GameState(gameState.getPlayer1(), gameState.getPlayer2().haveGo(rollSum)));
 
-        private final BiFunction<GameState, Integer, GameState> playerFunc;
+        private final Function<GameState, Player> getPlayer;
+        private final BiFunction<GameState, Integer, GameState> haveGo;
 
-        WhichPlayer(BiFunction<GameState, Integer, GameState> playerFunc) {
-            this.playerFunc = playerFunc;
+        WhichPlayer(Function<GameState, Player> getPlayer, BiFunction<GameState, Integer, GameState> haveGo) {
+            this.getPlayer = getPlayer;
+            this.haveGo = haveGo;
+        }
+
+        public Player getPlayer(GameState gameState) {
+            return getPlayer.apply(gameState);
         }
 
         private GameState haveGo(GameState gameState, Integer rollSum) {
-            return playerFunc.apply(gameState, rollSum);
+            return haveGo.apply(gameState, rollSum);
+        }
+
+        public WhichPlayer other() {
+            return this == WhichPlayer.ONE ? WhichPlayer.TWO : WhichPlayer.ONE;
         }
     }
 

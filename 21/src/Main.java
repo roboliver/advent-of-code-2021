@@ -15,25 +15,17 @@ public class Main {
 
     public static int losingScoreTimesDieRollsDeterministic(BufferedReader lineReader) throws IOException {
         DeterministicDie die = new DeterministicDie(100);
-        Player player1 = new Player(startingPos(lineReader));
-        Player player2 = new Player(startingPos(lineReader));
+        Player player1Init = new Player(startingPos(lineReader));
+        Player player2Init = new Player(startingPos(lineReader));
         lineReader.close();
-        GameState gameState = new GameState(player1, player2);
         int scoreToWin = 1000;
-        while (!player1.hasWon(scoreToWin) && !player2.hasWon(scoreToWin)) {
-            gameState = haveGoDeterministic(gameState, die, GameState.WhichPlayer.ONE);
-            //printState(gameState.getPlayer1(), gameState.getPlayer2(), die);
-            if (!gameState.getPlayer1().hasWon(scoreToWin)) {
-                gameState = haveGoDeterministic(gameState, die, GameState.WhichPlayer.TWO);
-                //printState(gameState.getPlayer1(), gameState.getPlayer2(), die);
-            }
-            player1 = gameState.getPlayer1();
-            player2 = gameState.getPlayer2();
+        GameState gameState = new GameState(player1Init, player2Init);
+        GameState.WhichPlayer currentPlayer = GameState.WhichPlayer.ONE;
+        while (!currentPlayer.other().getPlayer(gameState).hasWon(scoreToWin)) {
+            gameState = haveGoDeterministic(gameState, die, currentPlayer);
+            currentPlayer = currentPlayer.other();
         }
-        System.out.println("player 1 score: " + player1.getScore());
-        System.out.println("player 2 score: " + player2.getScore());
-        System.out.println("rolls: " + die.rollCount());
-        return Math.min(player1.getScore(), player2.getScore()) * die.rollCount();
+        return Math.min(gameState.getPlayer1().getScore(), gameState.getPlayer2().getScore()) * die.rollCount();
     }
 
     public static long maxWinnerWinsDirac(BufferedReader lineReader) throws IOException {
@@ -41,41 +33,36 @@ public class Main {
         Player player1 = new Player(startingPos(lineReader));
         Player player2 = new Player(startingPos(lineReader));
         lineReader.close();
+        int scoreToWin = 21;
         Map<GameState, Long> gameStates = new HashMap<>();
         gameStates.put(new GameState(player1, player2), 1L);
         long player1Wins = 0;
         long player2Wins = 0;
+        GameState.WhichPlayer currentPlayer = GameState.WhichPlayer.ONE;
         while (!gameStates.isEmpty()) {
-//            System.out.println("----------");
-//            for (Map.Entry<GameState, Long> gameState : gameStates.entrySet()) {
-//                System.out.println(stateToString(gameState.getKey().getPlayer1(), gameState.getKey().getPlayer2(), new DeterministicDie(7)) + ": " + gameState.getValue());
-//            }
-            System.out.println(gameStates.size());
-            System.out.println("p1 wins: " + player1Wins);
-            System.out.println("p2 wins: " + player2Wins);
             Map<GameState, Long> gameStatesNew = new HashMap<>();
-            int scoreToWin = 21;
             for (Map.Entry<GameState, Long> gameState : gameStates.entrySet()) {
-                Map<GameState, Long> nextGameStatesP1Go = gameState.getKey().haveGo(GameState.WhichPlayer.ONE, die);
-                for (Map.Entry<GameState, Long> nextGameStateP1Go : nextGameStatesP1Go.entrySet()) {
-                    if (nextGameStateP1Go.getKey().getPlayer1().hasWon(scoreToWin)) {
-                        player1Wins += gameState.getValue() * nextGameStateP1Go.getValue();
+                if (currentPlayer.other().getPlayer(gameState.getKey()).hasWon(scoreToWin)) {
+                    if (currentPlayer == GameState.WhichPlayer.ONE) {
+                        player1Wins += gameState.getValue();
                     } else {
-                        Map<GameState, Long> nextGameStatesP2Go = nextGameStateP1Go.getKey().haveGo(GameState.WhichPlayer.TWO, die);
-                        for (Map.Entry<GameState, Long> nextGameStateP2Go : nextGameStatesP2Go.entrySet()) {
-                            if (nextGameStateP2Go.getKey().getPlayer2().hasWon(scoreToWin)) {
-                                player2Wins += gameState.getValue() * nextGameStateP1Go.getValue() * nextGameStateP2Go.getValue();
-                            } else {
-                                gameStatesNew.merge(nextGameStateP2Go.getKey(), gameState.getValue() * nextGameStateP1Go.getValue() * nextGameStateP2Go.getValue(), Long::sum);
-                            }
-                        }
+                        player2Wins += gameState.getValue();
+                    }
+                } else {
+                    Map<GameState, Long> nextGameStates = gameState.getKey().haveGo(currentPlayer, die);
+                    for (Map.Entry<GameState, Long> nextGameState : nextGameStates.entrySet()) {
+                        gameStatesNew.merge(nextGameState.getKey(),
+                                gameState.getValue() * nextGameState.getValue(), Long::sum);
                     }
                 }
             }
+            currentPlayer = currentPlayer.other();
             gameStates = gameStatesNew;
         }
         return Math.max(player1Wins, player2Wins);
     }
+
+
 
     private static String stateToString(Player player1, Player player2, DeterministicDie die) {
         return "p1=" + player1.getScore() + ",p2=" + player2.getScore() + ",rolls=" + die.rollCount();
