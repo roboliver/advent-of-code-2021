@@ -13,13 +13,28 @@ public class Main {
         Player player1 = new Player(startingPos(lineReader));
         Player player2 = new Player(startingPos(lineReader));
         lineReader.close();
+        GameState gameState = new GameState(player1, player2);
         while (!player1.hasWon() && !player2.hasWon()) {
-            player1.haveGo(die);
-            if (!player1.hasWon()) {
-                player2.haveGo(die);
+            gameState = haveGoDeterministic(gameState, die, GameState.WhichPlayer.ONE);
+            if (!gameState.getPlayer1().hasWon()) {
+                gameState = haveGoDeterministic(gameState, die, GameState.WhichPlayer.TWO);
             }
+            player1 = gameState.getPlayer1();
+            player2 = gameState.getPlayer2();
         }
+        System.out.println("player 1 score: " + player1.getScore());
+        System.out.println("player 2 score: " + player2.getScore());
+        System.out.println("rolls: " + die.rollCount());
         return Math.min(player1.getScore(), player2.getScore()) * die.rollCount();
+    }
+
+    private static GameState haveGoDeterministic(GameState gameState, Die die, GameState.WhichPlayer whichPlayer) {
+        return gameState.haveGo(whichPlayer, die)
+                .entrySet()
+                .stream()
+                .findFirst()
+                .get()
+                .getKey();
     }
 
     private static int startingPos(BufferedReader lineReader) throws IOException {

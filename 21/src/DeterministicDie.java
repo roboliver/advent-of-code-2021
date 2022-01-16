@@ -1,4 +1,6 @@
-public class DeterministicDie {
+import java.util.List;
+
+public class DeterministicDie implements Die {
     private int nextRoll = 1;
     private final int sides;
     private int rollCount = 0;
@@ -10,19 +12,12 @@ public class DeterministicDie {
         this.sides = sides;
     }
 
-    public int roll(int times) {
-        int roll = 0;
-        for (int i = 0; i < times; i++) {
-            roll += roll();
-        }
-        return roll;
-    }
-
-    public int roll() {
+    @Override
+    public List<Integer> roll() {
         int roll = nextRoll;
         nextRoll = nextRoll == sides ? 1 : nextRoll + 1;
         rollCount++;
-        return roll;
+        return List.of(roll);
     }
 
     public int rollCount() {
