@@ -16,8 +16,10 @@ public class Main {
         GameState gameState = new GameState(player1, player2);
         while (!player1.hasWon() && !player2.hasWon()) {
             gameState = haveGoDeterministic(gameState, die, GameState.WhichPlayer.ONE);
+            //printState(gameState.getPlayer1(), gameState.getPlayer2(), die);
             if (!gameState.getPlayer1().hasWon()) {
                 gameState = haveGoDeterministic(gameState, die, GameState.WhichPlayer.TWO);
+                //printState(gameState.getPlayer1(), gameState.getPlayer2(), die);
             }
             player1 = gameState.getPlayer1();
             player2 = gameState.getPlayer2();
@@ -26,6 +28,10 @@ public class Main {
         System.out.println("player 2 score: " + player2.getScore());
         System.out.println("rolls: " + die.rollCount());
         return Math.min(player1.getScore(), player2.getScore()) * die.rollCount();
+    }
+
+    private static void printState(Player player1, Player player2, DeterministicDie die) {
+        System.out.println("p1=" + player1.getScore() + ",p2=" + player2.getScore() + ",rolls=" + die.rollCount());
     }
 
     private static GameState haveGoDeterministic(GameState gameState, Die die, GameState.WhichPlayer whichPlayer) {

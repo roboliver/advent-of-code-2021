@@ -6,13 +6,13 @@ public class PlayerTest {
     @Test
     public void testRoll() {
         Player player = new Player(5);
-        player = player.roll(2);
+        player = player.haveGo(2);
         assertEquals(7, player.getScore());
-        player = player.roll(3);
+        player = player.haveGo(3);
         assertEquals(17, player.getScore());
-        player = player.roll(4);
+        player = player.haveGo(4);
         assertEquals(21, player.getScore());
-        player = player.roll(25);
+        player = player.haveGo(25);
         assertEquals(30, player.getScore());
     }
 
@@ -20,10 +20,10 @@ public class PlayerTest {
     public void testWin() {
         Player player = new Player(10);
         for (int i = 0; i < 99; i++) {
-            player = player.roll(10);
+            player = player.haveGo(10);
         }
         assertFalse(player.hasWon());
-        player = player.roll(10);
+        player = player.haveGo(10);
         assertTrue(player.hasWon());
     }
 }

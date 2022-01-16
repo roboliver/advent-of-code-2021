@@ -1,6 +1,3 @@
-import java.util.HashMap;
-import java.util.Map;
-
 public class Player {
     private static final int TRACK_SIZE = 10;
     private static final int SCORE_TO_WIN = 1000;
@@ -18,7 +15,7 @@ public class Player {
         this.score = score;
     }
 
-    public Player roll(int roll) {
+    public Player haveGo(int roll) {
         int pawnPosNew = (((this.pawnPos + roll) - 1) % TRACK_SIZE) + 1;
         int scoreNew = this.score + pawnPosNew;
         return new Player(pawnPosNew, scoreNew);
