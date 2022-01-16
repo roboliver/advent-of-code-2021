@@ -1,34 +1,6 @@
 import java.util.*;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class GameState {
-    public enum WhichPlayer {
-        ONE(GameState::getPlayer1,
-                (gameState, rollSum) -> new GameState(gameState.getPlayer1().haveGo(rollSum), gameState.getPlayer2())),
-        TWO(GameState::getPlayer2,
-                (gameState, rollSum) -> new GameState(gameState.getPlayer1(), gameState.getPlayer2().haveGo(rollSum)));
-
-        private final Function<GameState, Player> getPlayer;
-        private final BiFunction<GameState, Integer, GameState> haveGo;
-
-        WhichPlayer(Function<GameState, Player> getPlayer, BiFunction<GameState, Integer, GameState> haveGo) {
-            this.getPlayer = getPlayer;
-            this.haveGo = haveGo;
-        }
-
-        public Player getPlayer(GameState gameState) {
-            return getPlayer.apply(gameState);
-        }
-
-        private GameState haveGo(GameState gameState, Integer rollSum) {
-            return haveGo.apply(gameState, rollSum);
-        }
-
-        public WhichPlayer other() {
-            return this == WhichPlayer.ONE ? WhichPlayer.TWO : WhichPlayer.ONE;
-        }
-    }
 
     private final Player player1;
     private final Player player2;
@@ -40,26 +12,23 @@ public class GameState {
 
     public Map<GameState, Long> haveGo(WhichPlayer whichPlayer, Die die) {
         Map<GameState, Long> gameStatesNew = new HashMap<>();
-        for (int rollSum : rollSums(die)) {
+        for (int rollSum : die.rollNTimes(3)) {
             gameStatesNew.merge(whichPlayer.haveGo(this, rollSum), 1L, Long::sum);
         }
         return gameStatesNew;
     }
 
-    private List<Integer> rollSums(Die die) {
-        List<Integer> rollSums = new ArrayList<>();
-        rollSums.add(0);
-        for (int i = 0; i < 3; i++) {
-            List<Integer> rolls = die.roll();
-            List<Integer> rollSumsNew = new ArrayList<>();
-            for (int rollSum : rollSums) {
-                for (int roll : rolls) {
-                    rollSumsNew.add(rollSum + roll);
-                }
-            }
-            rollSums = rollSumsNew;
-        }
-        return rollSums;
+    public GameState haveGoDeterministic(GameState gameState, DeterministicDie die, WhichPlayer whichPlayer) {
+        return haveGo(whichPlayer, die)
+                .entrySet()
+                .stream()
+                .findFirst()
+                .orElseThrow()
+                .getKey();
+    }
+
+    public Player getPlayer(WhichPlayer whichPlayer) {
+        return whichPlayer.getPlayer(this);
     }
 
     public Player getPlayer1() {

@@ -20,9 +20,9 @@ public class Main {
         lineReader.close();
         int scoreToWin = 1000;
         GameState gameState = new GameState(player1Init, player2Init);
-        GameState.WhichPlayer currentPlayer = GameState.WhichPlayer.ONE;
-        while (!currentPlayer.other().getPlayer(gameState).hasWon(scoreToWin)) {
-            gameState = haveGoDeterministic(gameState, die, currentPlayer);
+        WhichPlayer currentPlayer = WhichPlayer.ONE;
+        while (!gameState.getPlayer(currentPlayer.other()).hasWon(scoreToWin)) {
+            gameState = gameState.haveGoDeterministic(gameState, die, currentPlayer);
             currentPlayer = currentPlayer.other();
         }
         return Math.min(gameState.getPlayer1().getScore(), gameState.getPlayer2().getScore()) * die.rollCount();
@@ -38,12 +38,12 @@ public class Main {
         gameStates.put(new GameState(player1, player2), 1L);
         long player1Wins = 0;
         long player2Wins = 0;
-        GameState.WhichPlayer currentPlayer = GameState.WhichPlayer.ONE;
+        WhichPlayer currentPlayer = WhichPlayer.ONE;
         while (!gameStates.isEmpty()) {
             Map<GameState, Long> gameStatesNew = new HashMap<>();
             for (Map.Entry<GameState, Long> gameState : gameStates.entrySet()) {
-                if (currentPlayer.other().getPlayer(gameState.getKey()).hasWon(scoreToWin)) {
-                    if (currentPlayer == GameState.WhichPlayer.ONE) {
+                if (gameState.getKey().getPlayer(currentPlayer.other()).hasWon(scoreToWin)) {
+                    if (currentPlayer == WhichPlayer.ONE) {
                         player1Wins += gameState.getValue();
                     } else {
                         player2Wins += gameState.getValue();
@@ -62,19 +62,8 @@ public class Main {
         return Math.max(player1Wins, player2Wins);
     }
 
-
-
     private static String stateToString(Player player1, Player player2, DeterministicDie die) {
         return "p1=" + player1.getScore() + ",p2=" + player2.getScore() + ",rolls=" + die.rollCount();
-    }
-
-    private static GameState haveGoDeterministic(GameState gameState, Die die, GameState.WhichPlayer whichPlayer) {
-        return gameState.haveGo(whichPlayer, die)
-                .entrySet()
-                .stream()
-                .findFirst()
-                .get()
-                .getKey();
     }
 
     private static int startingPos(BufferedReader lineReader) throws IOException {
