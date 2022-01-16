@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Player {
     private static final int TRACK_SIZE = 10;
     private static final int SCORE_TO_WIN = 1000;
@@ -21,11 +23,29 @@ public class Player {
         return new Player(pawnPosNew, scoreNew);
     }
 
-    public boolean hasWon() {
-        return score >= SCORE_TO_WIN;
+    public boolean hasWon(int scoreToWin) {
+        return score >= scoreToWin;
     }
 
     public int getScore() {
         return score;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (!(obj instanceof Player)) {
+            return false;
+        } else {
+            return this.pawnPos == ((Player) obj).pawnPos
+                    && this.score == ((Player) obj).score;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int[] vals = {pawnPos, score};
+        return Arrays.hashCode(vals);
     }
 }

@@ -10,7 +10,12 @@ public class MainTest {
             + "Player 2 starting position: 8";
 
     @Test
-    public void testLosingScoreTimesDieRolls() throws IOException {
-        assertEquals(739785, Main.losingScoreTimesDieRolls(Utils.testLineReader(SAMPLE)));
+    public void testLosingScoreTimesDieRollsDeterministic() throws IOException {
+        assertEquals(739785, Main.losingScoreTimesDieRollsDeterministic(Utils.testLineReader(SAMPLE)));
+    }
+
+    @Test
+    public void testMaxWinnerWinsDirac() throws IOException {
+        assertEquals(444356092776315L, Main.maxWinnerWinsDirac(Utils.testLineReader(SAMPLE)));
     }
 }

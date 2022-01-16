@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiFunction;
 
 public class GameState {
@@ -58,5 +55,22 @@ public class GameState {
 
     public Player getPlayer2() {
         return player2;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (!(obj instanceof GameState)) {
+            return false;
+        } else {
+            return this.player1.equals(((GameState) obj).player1)
+                    && this.player2.equals(((GameState) obj).player2);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(player1, player2);
     }
 }

@@ -22,8 +22,8 @@ public class PlayerTest {
         for (int i = 0; i < 99; i++) {
             player = player.haveGo(10);
         }
-        assertFalse(player.hasWon());
+        assertFalse(player.hasWon(1000));
         player = player.haveGo(10);
-        assertTrue(player.hasWon());
+        assertTrue(player.hasWon(1000));
     }
 }
