@@ -83,24 +83,32 @@ public class Volume {
     }
 
     public List<Volume> subdivide() {
+        return subdivide(midpoint(xMin, xMax), midpoint(yMin, yMax), midpoint(zMin, zMax));
+    }
+
+    public List<Volume> subdivide(int xMid, int yMid, int zMid) {
         List<Volume> subVolumes = List.of(this);
-        subVolumes = subdivideOnDimension(subVolumes, xMin, xMax, (volume -> volume::xSlice));
-        subVolumes = subdivideOnDimension(subVolumes, yMin, yMax, (volume -> volume::ySlice));
-        subVolumes = subdivideOnDimension(subVolumes, xMin, xMax, (volume -> volume::zSlice));
+        subVolumes = subdivideOnDimension(subVolumes, xMin, xMax, xMid, (volume -> volume::xSlice));
+        subVolumes = subdivideOnDimension(subVolumes, yMin, yMax, yMid, (volume -> volume::ySlice));
+        subVolumes = subdivideOnDimension(subVolumes, xMin, xMax, zMid, (volume -> volume::zSlice));
         return subVolumes;
     }
 
-    private List<Volume> subdivideOnDimension(List<Volume> subVolumes, int min, int max,
+    private List<Volume> subdivideOnDimension(List<Volume> subVolumes, int min, int max, int mid,
                                               Function<Volume, Function<Integer, List<Volume>>> sliceFunc) {
-        if (max - min <= 0) {
+        if (max - min <= 0 || mid <= min || mid > max) {
             return subVolumes;
         } else {
             List<Volume> sliced = new ArrayList<>();
             for (Volume volume : subVolumes) {
-                sliced.addAll(sliceFunc.apply(volume).apply((min + max + 1) / 2));
+                sliced.addAll(sliceFunc.apply(volume).apply(mid));
             }
             return sliced;
         }
+    }
+
+    private static int midpoint(int min, int max) {
+        return (min + max + 1) / 2;
     }
 
     private List<Volume> xSlice(int x) {

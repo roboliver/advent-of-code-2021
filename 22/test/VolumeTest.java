@@ -252,4 +252,17 @@ public class VolumeTest {
         assertEquals(1, subVolumes.size());
         assertTrue(subVolumes.contains(new Volume(1, 1, 1, 1, 1, 1)));
     }
+
+    @Test
+    public void testSubdivideSpecifiedMidpoint() {
+        Volume v = new Volume(1, 1, 1, 10, 10, 10);
+        assertEquals(8, v.subdivide(4, 5, 6).size());
+        assertEquals(4, v.subdivide(0, 5, 5).size());
+        assertEquals(4, v.subdivide(8, 1, 3).size());
+        assertEquals(4, v.subdivide(10, 2, 100).size());
+        assertEquals(2, v.subdivide(3, 47, 40).size());
+        assertEquals(2, v.subdivide(-13, 9, 11).size());
+        assertEquals(2, v.subdivide(199, 198, 7).size());
+        assertEquals(1, v.subdivide(-1, 20, 1).size());
+    }
 }
