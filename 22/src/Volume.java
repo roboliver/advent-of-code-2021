@@ -83,14 +83,14 @@ public class Volume {
     }
 
     public List<Volume> subdivide() {
-        return subdivide(midpoint(xMin, xMax), midpoint(yMin, yMax), midpoint(zMin, zMax));
+        return subdivide(xMidpoint(), yMidpoint(), zMidpoint());
     }
 
     public List<Volume> subdivide(int xMid, int yMid, int zMid) {
         List<Volume> subVolumes = List.of(this);
         subVolumes = subdivideOnDimension(subVolumes, xMin, xMax, xMid, (volume -> volume::xSlice));
         subVolumes = subdivideOnDimension(subVolumes, yMin, yMax, yMid, (volume -> volume::ySlice));
-        subVolumes = subdivideOnDimension(subVolumes, xMin, xMax, zMid, (volume -> volume::zSlice));
+        subVolumes = subdivideOnDimension(subVolumes, zMin, zMax, zMid, (volume -> volume::zSlice));
         return subVolumes;
     }
 
@@ -105,6 +105,18 @@ public class Volume {
             }
             return sliced;
         }
+    }
+
+    public int xMidpoint() {
+        return midpoint(xMin, xMax);
+    }
+
+    public int yMidpoint() {
+        return midpoint(yMin, yMax);
+    }
+
+    public int zMidpoint() {
+        return midpoint(zMin, zMax);
     }
 
     private static int midpoint(int min, int max) {
@@ -148,7 +160,11 @@ public class Volume {
     }
 
     public long size() {
-        return (long) (xMax - xMin + 1) * (yMax - yMin + 1) * (zMax - zMin + 1);
+        if (this == NULL) {
+            return 0;
+        } else {
+            return (long) (xMax - xMin + 1) * (yMax - yMin + 1) * (zMax - zMin + 1);
+        }
     }
 
     @Override

@@ -7,7 +7,10 @@ public class Main {
             System.out.println("Cubes on in region -50..50 (in all dimensions): " + cubesOn(lineReader, -50, 50));
         }
         try (BufferedReader lineReader = Utils.inputLineReader()) {
+            long timeBefore = System.currentTimeMillis();
             System.out.println("Cubes on in entire region: " + cubesOn(lineReader));
+            long timeAfter = System.currentTimeMillis();
+            System.out.println("it took " + (timeAfter - timeBefore) + "ms.");
         }
     }
 
@@ -19,11 +22,9 @@ public class Main {
         Region region = new Region(new Volume(regionMin, regionMin, regionMin,
                 regionMax, regionMax, regionMax));
         String line;
-        int stepCount = 0;
         while ((line = lineReader.readLine()) != null) {
             RebootStep step = rebootStep(line);
             region.executeStep(step);
-            stepCount++;
         }
         return region.cubesOn();
     }

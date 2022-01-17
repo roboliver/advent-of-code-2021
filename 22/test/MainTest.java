@@ -35,8 +35,9 @@ public class MainTest {
             + "on x=-54112..-39298,y=-85059..-49293,z=-27449..7877\n"
             + "on x=967..23432,y=45373..81175,z=27513..53682";
 
-    private static final String SAMPLE_VERY_LARGE = "on x=-5..47,y=-31..22,z=-19..33\n" +
-            "on x=-44..5,y=-27..21,z=-14..35\n"
+    private static final String SAMPLE_VERY_LARGE =
+            "on x=-5..47,y=-31..22,z=-19..33\n"
+            + "on x=-44..5,y=-27..21,z=-14..35\n"
             + "on x=-49..-1,y=-11..42,z=-10..38\n"
             + "on x=-20..34,y=-40..6,z=-44..1\n"
             + "off x=26..39,y=40..50,z=-2..11\n"
