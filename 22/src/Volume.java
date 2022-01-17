@@ -38,29 +38,29 @@ public class Volume {
         }
     }
 
-    public List<Volume> difference(Volume other) {
-        if (!other.overlaps(this)) {
-            return List.of(this);
-        } else if (other.subsumes(this)) {
+    public List<Volume> subtract(Volume other) {
+        if (other.subsumes(this)) {
             return Collections.emptyList();
+        } else if (!other.overlaps(this)) {
+            return List.of(this);
         } else {
             Volume intersection = other.intersection(this);
             if (intersection.xMin > xMin) {
                 List<Volume> xSlices = xSlice(intersection.xMin);
-                return merge(xSlices.get(1).difference(intersection), xSlices.get(0));
+                return merge(xSlices.get(1).subtract(intersection), xSlices.get(0));
             } else if (intersection.yMin > yMin) {
                 List<Volume> ySlices = ySlice(intersection.yMin);
-                return merge(ySlices.get(1).difference(intersection), ySlices.get(0));
+                return merge(ySlices.get(1).subtract(intersection), ySlices.get(0));
             } else if (intersection.zMin > zMin) {
                 List<Volume> zSlices = zSlice(intersection.zMin);
-                return merge(zSlices.get(1).difference(intersection), zSlices.get(0));
+                return merge(zSlices.get(1).subtract(intersection), zSlices.get(0));
             } else {
-                return differenceAfterTrimming(intersection);
+                return subtractAfterTrimming(intersection);
             }
         }
     }
 
-    private List<Volume> differenceAfterTrimming(Volume intersection) {
+    private List<Volume> subtractAfterTrimming(Volume intersection) {
         List<Volume> difference = new ArrayList<>();
         Volume remaining = this;
         if (intersection.xMax < xMax) {
@@ -145,6 +145,10 @@ public class Volume {
         List<Volume> volumesMut = new ArrayList<>(volumes);
         volumesMut.add(add);
         return Collections.unmodifiableList(volumesMut);
+    }
+
+    public long size() {
+        return (long) (xMax - xMin + 1) * (yMax - yMin + 1) * (zMax - zMin + 1);
     }
 
     @Override

@@ -120,39 +120,39 @@ public class VolumeTest {
     }
 
     @Test
-    public void testDifferenceNoOverlap() {
+    public void testSubtractNoOverlap() {
         Volume v = new Volume(10, 10, 10, 20, 20, 20);
         Volume noOverlap = new Volume(30, 30, 30, 40, 40, 40);
-        assertEquals(List.of(v), v.difference(noOverlap));
+        assertEquals(List.of(v), v.subtract(noOverlap));
     }
 
     @Test
-    public void testDifferenceContaining() {
+    public void testSubtractContaining() {
         Volume v = new Volume(1, 1, 1, 5, 5, 5);
         Volume containing = new Volume(0, 0, 0, 6, 6, 6);
-        assertEquals(Collections.emptyList(), v.difference(containing));
+        assertEquals(Collections.emptyList(), v.subtract(containing));
     }
 
     @Test
-    public void testDifferenceCorners() {
+    public void testSubtractCorners() {
         Volume v = new Volume(0, 0, 0, 50, 50, 50);
         // LLL
         Volume cornerLLL = new Volume(-5, -5, -5, 5, 5, 5);
-        List<Volume> differenceLLL = v.difference(cornerLLL);
+        List<Volume> differenceLLL = v.subtract(cornerLLL);
         assertEquals(3, differenceLLL.size());
         assertTrue(differenceLLL.contains(new Volume(6, 0, 0, 50, 50, 50)));
         assertTrue(differenceLLL.contains(new Volume(0, 6, 0,5, 50, 50)));
         assertTrue(differenceLLL.contains(new Volume(0, 0, 6, 5, 5, 50)));
         // LLH
         Volume cornerLLH = new Volume(-5, -5, 45, 5, 5, 60);
-        List<Volume> differenceLLH = v.difference(cornerLLH);
+        List<Volume> differenceLLH = v.subtract(cornerLLH);
         assertEquals(3, differenceLLH.size());
         assertTrue(differenceLLH.contains(new Volume(0, 0, 0, 50, 50, 44)));
         assertTrue(differenceLLH.contains(new Volume(6, 0, 45, 50, 50, 50)));
         assertTrue(differenceLLH.contains(new Volume(0, 6, 45, 5, 50, 50)));
         // HHH
         Volume cornerHHH = new Volume(45, 45, 45, 55, 55, 55);
-        List<Volume> differenceHHH = v.difference(cornerHHH);
+        List<Volume> differenceHHH = v.subtract(cornerHHH);
         assertEquals(3, differenceHHH.size());
         assertTrue(differenceHHH.contains(new Volume(0, 0, 0, 44, 50, 50)));
         assertTrue(differenceHHH.contains(new Volume(45, 0, 0, 50, 44, 50)));
@@ -160,11 +160,11 @@ public class VolumeTest {
     }
 
     @Test
-    public void testDifferenceEdges() {
+    public void testSubtractEdges() {
         Volume v = new Volume(0, 0, 0, 50, 50, 50);
         // edge values within volume
         Volume edgeXLLInside = new Volume(10, -5, -5, 30, 40, 40);
-        List<Volume> differenceXLLInside = v.difference(edgeXLLInside);
+        List<Volume> differenceXLLInside = v.subtract(edgeXLLInside);
         assertEquals(4, differenceXLLInside.size());
         assertTrue(differenceXLLInside.contains(new Volume(0, 0, 0, 9, 50, 50)));
         assertTrue(differenceXLLInside.contains(new Volume(31, 0, 0, 50, 50, 50)));
@@ -172,17 +172,17 @@ public class VolumeTest {
         assertTrue(differenceXLLInside.contains(new Volume(10, 0, 41, 30, 40, 50)));
         // edge values outside volume
         Volume edgeXLLOutside = new Volume(-100, -5, -5, 100, 40, 40);
-        List<Volume> differenceXLLOutside = v.difference(edgeXLLOutside);
+        List<Volume> differenceXLLOutside = v.subtract(edgeXLLOutside);
         assertEquals(2, differenceXLLOutside.size());
         assertTrue(differenceXLLOutside.contains(new Volume(0, 41, 0, 50, 50, 50)));
         assertTrue(differenceXLLOutside.contains(new Volume(0, 0, 41, 50, 40, 50)));
     }
 
     @Test
-    public void testDifferenceContained() {
+    public void testSubtractContained() {
         Volume v = new Volume(0, 0, 0, 50, 50, 50);
         Volume contained = new Volume(20, 20, 20, 30, 30, 30);
-        List<Volume> difference = v.difference(contained);
+        List<Volume> difference = v.subtract(contained);
         assertEquals(6, difference.size());
         assertTrue(difference.contains(new Volume(0, 0, 0, 19, 50, 50)));
         assertTrue(difference.contains(new Volume(20, 0, 0, 50, 19, 50)));
@@ -193,11 +193,18 @@ public class VolumeTest {
     }
 
     @Test
-    public void testDifferenceNull() {
+    public void testSubtractNull() {
         Volume v = new Volume(5, 5, 5, 200, 200, 200);
-        List<Volume> differenceNull = v.difference(Volume.NULL);
+        List<Volume> differenceNull = v.subtract(Volume.NULL);
         assertEquals(1, differenceNull.size());
         assertTrue(differenceNull.contains(new Volume(5, 5, 5, 200, 200, 200)));
+    }
+
+    @Test
+    public void testSubtractFromNull() {
+        Volume v = new Volume(10, 10, 10, 100, 100, 500);
+        List<Volume> difference = Volume.NULL.subtract(v);
+        assertTrue(difference.isEmpty());
     }
 
     @Test
