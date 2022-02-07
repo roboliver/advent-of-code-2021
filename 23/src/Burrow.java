@@ -6,36 +6,38 @@ public class Burrow {
     private static final int ENTRANCE_C = 6;
     private static final int ENTRANCE_D = 8;
     private static final int HALLWAY_SIZE = 11;
-    private final Amphipod[] amphipods;
-    private final Map<Room, Amphipod[]> rooms;
+    private final Set<Amphipod> amphipods;
+    private final Map<Room, List<Amphipod>> rooms;
 
-    public Burrow(List<Amphipod> amphipods) {
+    public Burrow(Set<Amphipod> amphipods) {
         int sideRoomSize = amphipods.size() / 4;
-        this.amphipods = new Amphipod[amphipods.size()];
-        Map<Room, Amphipod[]> rooms = emptyRooms(sideRoomSize);
-        for (int i = 0; i < amphipods.size(); i++) {
-            Amphipod amphipod = amphipods.get(i);
-            this.amphipods[i] = amphipod;
-            rooms.get(amphipod.room())[amphipod.space()] = amphipod;
+        this.amphipods = Set.copyOf(amphipods);
+        Map<Room, List<Amphipod>> rooms = emptyRooms(sideRoomSize);
+        for (Amphipod amphipod : amphipods) {
+            rooms.get(amphipod.room()).set(amphipod.space(), amphipod);
         }
         this.rooms = Collections.unmodifiableMap(rooms);
     }
 
-    private static Map<Room, Amphipod[]> emptyRooms(int sideRoomSize) {
-        Map<Room, Amphipod[]> rooms = new HashMap<>();
+    private static Map<Room, List<Amphipod>> emptyRooms(int sideRoomSize) {
+        Map<Room, List<Amphipod>> rooms = new HashMap<>();
         for (Room room : Room.values()) {
             int roomSize = room == Room.HALLWAY ? HALLWAY_SIZE : sideRoomSize;
-            rooms.put(room, new Amphipod[roomSize]);
+            List<Amphipod> amphipods = new ArrayList<>();
+            for (int i = 0; i < roomSize; i++) {
+                amphipods.add(null);
+            }
+            rooms.put(room, amphipods);
         }
         return rooms;
     }
 
-    public List<Amphipod> amphipods() {
-        return Arrays.asList(amphipods);
+    public Set<Amphipod> amphipods() {
+        return amphipods;
     }
 
     public boolean isSolved() {
-        for (Map.Entry<Room, Amphipod[]> room : rooms.entrySet()) {
+        for (Map.Entry<Room, List<Amphipod>> room : rooms.entrySet()) {
             if (room.getKey() != Room.HALLWAY) {
                 for (Amphipod amphipod : room.getValue()) {
                     if (amphipod == null || amphipod.homeRoom() != room.getKey()) {
@@ -85,15 +87,15 @@ public class Burrow {
 
     private List<Integer> reachableHallwaySpaces(int fromHallwaySpace) {
         List<Integer> reachable = new ArrayList<>();
-        Amphipod[] hallway = rooms.get(Room.HALLWAY);
+        List<Amphipod> hallway = rooms.get(Room.HALLWAY);
         for (int i = fromHallwaySpace + 1; i < HALLWAY_SIZE; i++) {
-            if (hallway[i] != null) {
+            if (hallway.get(i) != null) {
                 break;
             }
             reachable.add(i);
         }
         for (int i = fromHallwaySpace - 1; i >= 0; i--) {
-            if (hallway[i] != null) {
+            if (hallway.get(i) != null) {
                 break;
             }
             reachable.add(i);
@@ -102,7 +104,7 @@ public class Burrow {
     }
 
     private boolean sideRoomLandable(Room sideRoom) {
-        Amphipod[] roomAmphipods = rooms.get(sideRoom);
+        List<Amphipod> roomAmphipods = rooms.get(sideRoom);
         for (Amphipod roomAmphipod : roomAmphipods) {
             if (roomAmphipod != null && roomAmphipod.homeRoom() != sideRoom) {
                 return false;
@@ -112,9 +114,9 @@ public class Burrow {
     }
 
     private int homeLandingSpace(Room sideRoom) {
-        Amphipod[] roomAmphipods = rooms.get(sideRoom);
-        for (int i = roomAmphipods.length - 1; i >= 0; i--) {
-            if (roomAmphipods[i] == null) {
+        List<Amphipod> roomAmphipods = rooms.get(sideRoom);
+        for (int i = roomAmphipods.size() - 1; i >= 0; i--) {
+            if (roomAmphipods.get(i) == null) {
                 return i;
             }
         }
@@ -122,9 +124,9 @@ public class Burrow {
     }
 
     private boolean canEscape(Amphipod amphipod) {
-        Amphipod[] sideRoom = rooms.get(amphipod.room());
+        List<Amphipod> sideRoom = rooms.get(amphipod.room());
         for (int i = amphipod.space() - 1; i >= 0; i--) {
-            if (sideRoom[i] != null) {
+            if (sideRoom.get(i) != null) {
                 return false;
             }
         }
@@ -136,49 +138,33 @@ public class Burrow {
     }
 
     private int stepsTo(Amphipod amphipod, Room room, int space) {
-//        if (room == amphipod.room()) {
-//            throw new IllegalArgumentException("amphipods must change rooms when moving");
-//        }
-        return stepsToHallway(amphipod, room, space)
+        return stepsToHallway(amphipod)
                 + stepsWithinHallway(amphipod, room, space)
-                + stepsIntoSideRoom(amphipod, room, space);
+                + stepsIntoSideRoom(room, space);
     }
 
-    private int stepsToHallway(Amphipod amphipod, Room room, int space) {
+    private int stepsToHallway(Amphipod amphipod) {
         return amphipod.room() == Room.HALLWAY ? 0 : amphipod.space() + 1;
-//        if (amphipod.room() == Room.HALLWAY) {
-//            return 0;
-//        } else {
-////            assertNotBlocked(room, amphipod.space(), space, amphipod);
-//            return amphipod.space() + 1;
-//        }
     }
 
     private int stepsWithinHallway(Amphipod amphipod, Room room, int space) {
         int startHallwaySpace = (amphipod.room() == Room.HALLWAY)
                 ? amphipod.space() : entranceFromSideRoom(amphipod.room());
         int endHallwaySpace = (room == Room.HALLWAY) ? space : entranceFromSideRoom(room);
-//        assertNotBlocked(Room.HALLWAY, startHallwaySpace, endHallwaySpace, amphipod);
         return Math.abs(endHallwaySpace - startHallwaySpace);
     }
 
-    private int stepsIntoSideRoom(Amphipod amphipod, Room room, int space) {
+    private int stepsIntoSideRoom(Room room, int space) {
         return room == Room.HALLWAY ? 0 : space + 1;
-//        if (room == Room.HALLWAY) {
-//            return 0;
-//        } else {
-//
-//        }
     }
 
     public Burrow moveAmphipod(Amphipod amphipod, Room room, int space) {
-        Amphipod[] amphipodsNew = new Amphipod[amphipods.length];
-        for (int i = 0; i < amphipodsNew.length; i++) {
-            Amphipod amphipodNew = (amphipods[i] == amphipod)
-                    ? amphipod.moveTo(room, space) : amphipods[i];
-            amphipodsNew[i] = amphipodNew;
+        Set<Amphipod> amphipodsNew = new HashSet<>();
+        for (Amphipod amphipodCur : amphipods) {
+            Amphipod amphipodNew = (amphipodCur == amphipod) ? amphipod.moveTo(room, space) : amphipodCur;
+            amphipodsNew.add(amphipodNew);
         }
-        return new Burrow(Arrays.asList(amphipodsNew));
+        return new Burrow(amphipodsNew);
     }
 
     private Room sideRoomFromEntrance(int entrance) {
@@ -233,15 +219,15 @@ public class Burrow {
             buf.append(amphipodChar(amphipod));
         }
         buf.append("#\n");
-        for (int i = 0; i < rooms.get(Room.SIDEROOM_A).length; i++) {
+        for (int i = 0; i < rooms.get(Room.SIDEROOM_A).size(); i++) {
             buf.append(i > 0 ? "  #" : "###");
-            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_A)[i]));
+            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_A).get(i)));
             buf.append('#');
-            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_B)[i]));
+            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_B).get(i)));
             buf.append('#');
-            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_C)[i]));
+            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_C).get(i)));
             buf.append('#');
-            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_D)[i]));
+            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_D).get(i)));
             buf.append(i > 0 ? "#  \n" : "###\n");
         }
         buf.append("  #########");
@@ -260,8 +246,6 @@ public class Burrow {
             return false;
         } else {
             Burrow other = (Burrow) obj;
-            System.out.println("amphipods equal? " + Arrays.equals(amphipods, other.amphipods));
-            System.out.println("rooms equal? " + rooms.equals(other.rooms));
             return amphipods.equals(other.amphipods) && rooms.equals(other.rooms);
         }
     }
@@ -270,15 +254,4 @@ public class Burrow {
     public int hashCode() {
         return Objects.hash(amphipods, rooms);
     }
-
-//    private void assertNotBlocked(Room room, int fromSpace, int toSpace, Amphipod amphipod) {
-//        Amphipod[] roomAmphipods = rooms.get(room);
-//        int start = Math.min(fromSpace, toSpace);
-//        int end = Math.max(fromSpace, toSpace);
-//        for (int i = start; i <= end; i++) {
-//            if (roomAmphipods[i] != null && roomAmphipods[i] != amphipod) {
-//                throw new IllegalStateException("route blocked");
-//            }
-//        }
-//    }
 }

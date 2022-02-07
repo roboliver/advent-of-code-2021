@@ -69,16 +69,17 @@ public class Amphipod {
             return false;
         } else {
             Amphipod other = (Amphipod) obj;
-            System.out.println("type match? " + (type == other.type));
-            System.out.println("room match? + " + (room.equals(other.room)));
-            System.out.println("space match? " + (space == other.space));
-            return type == other.type && room.equals(other.room) && space == other.space;
+            return type == other.type && room == other.room && space == other.space;
         }
     }
 
     @Override
     public int hashCode() {
-        System.out.println("type: " + type + ", room: " + room + ", space: " + space + ", hash: " + Objects.hash(type, room, space));
         return Objects.hash(type, room, space);
+    }
+
+    @Override
+    public String toString() {
+        return "[" + type + ", " + room + ", " + space + "]";
     }
 }
