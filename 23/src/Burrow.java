@@ -6,11 +6,12 @@ public class Burrow {
     private static final int ENTRANCE_C = 6;
     private static final int ENTRANCE_D = 8;
     private static final int HALLWAY_SIZE = 11;
-    private static final int AMPHIPOD_COUNT = 8;
-    private final Amphipod[] amphipods = new Amphipod[AMPHIPOD_COUNT];
+    private final Amphipod[] amphipods;
     private final Map<Room, Amphipod[]> rooms;
 
-    public Burrow(List<Amphipod> amphipods, int sideRoomSize) {
+    public Burrow(List<Amphipod> amphipods) {
+        int sideRoomSize = amphipods.size() / 4;
+        this.amphipods = new Amphipod[amphipods.size()];
         Map<Room, Amphipod[]> rooms = emptyRooms(sideRoomSize);
         for (int i = 0; i < amphipods.size(); i++) {
             Amphipod amphipod = amphipods.get(i);
@@ -29,6 +30,23 @@ public class Burrow {
         return rooms;
     }
 
+    public List<Amphipod> amphipods() {
+        return Arrays.asList(amphipods);
+    }
+
+    public boolean isSolved() {
+        for (Map.Entry<Room, Amphipod[]> room : rooms.entrySet()) {
+            if (room.getKey() != Room.HALLWAY) {
+                for (Amphipod amphipod : room.getValue()) {
+                    if (amphipod == null || amphipod.homeRoom() != room.getKey()) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
     public List<Map.Entry<Room, Integer>> validMoves(Amphipod amphipod) {
         if (amphipod.room() == Room.HALLWAY) {
             return validMovesFromHallway(amphipod);
@@ -42,20 +60,23 @@ public class Burrow {
     }
 
     private List<Map.Entry<Room, Integer>> validMovesFromSideRoom(Amphipod amphipod) {
-        if (amphipod.room() == amphipod.homeRoom() || !canEscape(amphipod)) {
+        if ((amphipod.room() == amphipod.homeRoom() && sideRoomLandable(amphipod.room()))
+                || !canEscape(amphipod)) {
             return Collections.emptyList();
         }
         int entrance = entranceFromSideRoom(amphipod.room());
         return validMovesFromHallwaySpace(entrance, amphipod.homeRoom());
     }
 
-    private List<Map.Entry<Room, Integer>> validMovesFromHallwaySpace(int hallwaySpace, Room homeRoom) {
+    private List<Map.Entry<Room, Integer>> validMovesFromHallwaySpace(int fromSpace, Room homeRoom) {
         List<Map.Entry<Room, Integer>> validMoves = new ArrayList<>();
-        List<Integer> reachableHallwaySpaces = reachableHallwaySpaces(hallwaySpace);
-        for (int space : reachableHallwaySpaces) {
-            if (!isEntrance(space)) {
-                validMoves.add(new AbstractMap.SimpleImmutableEntry<>(Room.HALLWAY, space));
-            } else if (sideRoomFromEntrance(space) == homeRoom && sideRoomLandable(homeRoom)) {
+        List<Integer> reachableHallwaySpaces = reachableHallwaySpaces(fromSpace);
+        for (int reachableHallwaySpace : reachableHallwaySpaces) {
+            if (!isEntrance(reachableHallwaySpace)) {
+                if (isEntrance(fromSpace)) {
+                    validMoves.add(new AbstractMap.SimpleImmutableEntry<>(Room.HALLWAY, reachableHallwaySpace));
+                }
+            } else if (sideRoomFromEntrance(reachableHallwaySpace) == homeRoom && sideRoomLandable(homeRoom)) {
                 validMoves.add(new AbstractMap.SimpleImmutableEntry<>(homeRoom, homeLandingSpace(homeRoom)));
             }
         }
@@ -151,17 +172,13 @@ public class Burrow {
     }
 
     public Burrow moveAmphipod(Amphipod amphipod, Room room, int space) {
-        Amphipod[] amphipodsNew = new Amphipod[AMPHIPOD_COUNT];
-        for (int i = 0; i < AMPHIPOD_COUNT; i++) {
+        Amphipod[] amphipodsNew = new Amphipod[amphipods.length];
+        for (int i = 0; i < amphipodsNew.length; i++) {
             Amphipod amphipodNew = (amphipods[i] == amphipod)
                     ? amphipod.moveTo(room, space) : amphipods[i];
             amphipodsNew[i] = amphipodNew;
         }
-        return new Burrow(Arrays.asList(amphipodsNew), sideRoomSize());
-    }
-
-    private int sideRoomSize() {
-        return rooms.get(Room.SIDEROOM_A).length;
+        return new Burrow(Arrays.asList(amphipodsNew));
     }
 
     private Room sideRoomFromEntrance(int entrance) {
@@ -205,6 +222,53 @@ public class Burrow {
             default:
                 return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder buf = new StringBuilder();
+        buf.append("#############\n");
+        buf.append('#');
+        for (Amphipod amphipod : rooms.get(Room.HALLWAY)) {
+            buf.append(amphipodChar(amphipod));
+        }
+        buf.append("#\n");
+        for (int i = 0; i < rooms.get(Room.SIDEROOM_A).length; i++) {
+            buf.append(i > 0 ? "  #" : "###");
+            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_A)[i]));
+            buf.append('#');
+            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_B)[i]));
+            buf.append('#');
+            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_C)[i]));
+            buf.append('#');
+            buf.append(amphipodChar(rooms.get(Room.SIDEROOM_D)[i]));
+            buf.append(i > 0 ? "#  \n" : "###\n");
+        }
+        buf.append("  #########");
+        return buf.toString();
+    }
+
+    private static char amphipodChar(Amphipod amphipod) {
+        return amphipod == null ? '.' : amphipod.typeChar();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (!(obj instanceof Burrow)) {
+            return false;
+        } else {
+            Burrow other = (Burrow) obj;
+            System.out.println("amphipods equal? " + Arrays.equals(amphipods, other.amphipods));
+            System.out.println("rooms equal? " + rooms.equals(other.rooms));
+            return amphipods.equals(other.amphipods) && rooms.equals(other.rooms);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(amphipods, rooms);
     }
 
 //    private void assertNotBlocked(Room room, int fromSpace, int toSpace, Amphipod amphipod) {

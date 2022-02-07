@@ -1,14 +1,18 @@
+import java.util.Objects;
+
 public class Amphipod {
     public enum Type {
-        A(Room.SIDEROOM_A, 1),
-        B(Room.SIDEROOM_B, 10),
-        C(Room.SIDEROOM_C, 100),
-        D(Room.SIDEROOM_D, 1000);
+        A('A', Room.SIDEROOM_A, 1),
+        B('B', Room.SIDEROOM_B, 10),
+        C('C', Room.SIDEROOM_C, 100),
+        D('D', Room.SIDEROOM_D, 1000);
 
+        private final char typeChar;
         private final Room homeRoom;
         private final int stepCost;
 
-        Type(Room homeRoom, int stepCost) {
+        Type(char typeChar, Room homeRoom, int stepCost) {
+            this.typeChar = typeChar;
             this.homeRoom = homeRoom;
             this.stepCost = stepCost;
         }
@@ -51,5 +55,30 @@ public class Amphipod {
 
     public int stepCost() {
         return type.stepCost;
+    }
+
+    public char typeChar() {
+        return type.typeChar;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (!(obj instanceof Amphipod)) {
+            return false;
+        } else {
+            Amphipod other = (Amphipod) obj;
+            System.out.println("type match? " + (type == other.type));
+            System.out.println("room match? + " + (room.equals(other.room)));
+            System.out.println("space match? " + (space == other.space));
+            return type == other.type && room.equals(other.room) && space == other.space;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        System.out.println("type: " + type + ", room: " + room + ", space: " + space + ", hash: " + Objects.hash(type, room, space));
+        return Objects.hash(type, room, space);
     }
 }
