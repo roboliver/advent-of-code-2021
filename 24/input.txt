@@ -1,85 +1,24 @@
 inp w
-mul x 0
-add x z
-mod x 26
-div z 1
-add x 14
-eql x w
-eql x 0
-mul y 0
 add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 0
-mul y x
-add z y
+add z w
+mul z 26
 inp w
-mul x 0
-add x z
-mod x 26
-div z 1
-add x 13
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 12
-mul y x
-add z y
+add z w
+add z 12
+mul z 26
+add z 14
 inp w
-mul x 0
-add x z
-mod x 26
-div z 1
-add x 15
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 14
-mul y x
-add z y
+add z w
 inp w
-mul x 0
-add x z
-mod x 26
-div z 1
-add x 13
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 0
-mul y x
-add z y
-inp w
-mul x 0
+mul z 26
+add z w
 add x z
 mod x 26
 div z 26
 add x -2
+inp w
 eql x w
 eql x 0
-mul y 0
-add y 25
 mul y x
 add y 1
 mul z y
@@ -88,51 +27,23 @@ add y w
 add y 3
 mul y x
 add z y
-inp w
 mul x 0
-add x z
-mod x 26
-div z 1
-add x 10
-eql x w
-eql x 0
 mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 15
-mul y x
-add z y
+mul z 26
 inp w
-mul x 0
-add x z
-mod x 26
-div z 1
-add x 13
-eql x w
-eql x 0
-mul y 0
-add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 11
-mul y x
-add z y
+add z w
+add z 15
+mul z 26
 inp w
-mul x 0
+add z w
+add z 11
 add x z
 mod x 26
 div z 26
 add x -15
+inp w
 eql x w
 eql x 0
-mul y 0
 add y 25
 mul y x
 add y 1
@@ -142,34 +53,20 @@ add y w
 add y 12
 mul y x
 add z y
-inp w
 mul x 0
-add x z
-mod x 26
-div z 1
-add x 11
-eql x w
-eql x 0
 mul y 0
 add y 25
-mul y x
-add y 1
-mul z y
-mul y 0
-add y w
-add y 1
-mul y x
-add z y
+mul z 26
 inp w
-mul x 0
+add z w
+add z 1
 add x z
 mod x 26
 div z 26
 add x -9
+inp w
 eql x w
 eql x 0
-mul y 0
-add y 25
 mul y x
 add y 1
 mul z y
@@ -178,12 +75,12 @@ add y w
 add y 12
 mul y x
 add z y
-inp w
 mul x 0
 add x z
 mod x 26
 div z 26
 add x -9
+inp w
 eql x w
 eql x 0
 mul y 0
@@ -196,12 +93,12 @@ add y w
 add y 3
 mul y x
 add z y
-inp w
 mul x 0
 add x z
 mod x 26
 div z 26
 add x -7
+inp w
 eql x w
 eql x 0
 mul y 0
@@ -214,12 +111,12 @@ add y w
 add y 10
 mul y x
 add z y
-inp w
 mul x 0
 add x z
 mod x 26
 div z 26
 add x -4
+inp w
 eql x w
 eql x 0
 mul y 0
