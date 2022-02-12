@@ -8,31 +8,47 @@ public class Main {
         try (BufferedReader lineReader = Utils.inputLineReader()) {
             System.out.println("Largest accepted model number: " + maxModelNumber(lineReader));
         }
+        try (BufferedReader lineReader = Utils.inputLineReader()) {
+            System.out.println("Smallest accepted model number: " + minModelNumber(lineReader));
+        }
     }
 
     public static long maxModelNumber(BufferedReader lineReader) throws IOException {
         List<Instruction> instructions = instructions(lineReader);
         long minZ = Long.MAX_VALUE;
-        long minZInput;
-        for (long input = 71131111111111L; input <= 71131351919891L; input++) {
-            if (!isValidModelNumber(input)) {
-                continue;
-            }
-            State state = new State(input, 14);
-            int i = 1;
-            for (Instruction instruction : instructions) {
-                state = instruction.execute(state);
-                i++;
-            }
-            if (state.getVar('z') == 0) {
+        for (long input = 91297399999999L; input >= 11111111111111L; input--) {
+            minZ = checkModelNumber(input, instructions, minZ);
+            if (minZ == 0) {
                 return input;
-            } else if (state.getVar('z') < minZ) {
-                minZ = state.getVar('z');
-                minZInput = input;
-                System.out.println("new lowest z: " + minZ + " at input " + minZInput);
             }
         }
-        throw new IllegalStateException("no model numbers were valid!");
+        throw new IllegalStateException("No model numbers were valid!");
+    }
+
+    public static long minModelNumber(BufferedReader lineReader) throws IOException {
+        List<Instruction> instructions = instructions(lineReader);
+        long minZ = Long.MAX_VALUE;
+        for (long input = 71131111111111L; input <= 99999999999999L; input++) {
+            minZ = checkModelNumber(input, instructions, minZ);
+            if (minZ == 0) {
+                return input;
+            }
+        }
+        throw new IllegalStateException("No model numbers were valid!");
+    }
+
+    public static long checkModelNumber(long input, List<Instruction> instructions, long minZ) {
+        if (!isValidModelNumber(input)) {
+            return minZ;
+        }
+        State state = new State(input, 14);
+        for (Instruction instruction : instructions) {
+            state = instruction.execute(state);
+        }
+        if (state.getVar('z') < minZ) {
+            System.out.println("new lowest z: " + state.getVar('z') + " at input " + input);
+        }
+        return Math.min(state.getVar('z'), minZ);
     }
 
     public static State executeInstructions(BufferedReader lineReader, long input, int inputLen) throws IOException {
